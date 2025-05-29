@@ -263,6 +263,13 @@
             opacity: 0.8;
             margin: 10px 0;
         }
+        
+        .user-id {
+            font-size: 0.7rem;
+            text-align: center;
+            opacity: 0.6;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -273,6 +280,7 @@
                 <h1>RUTHASH MINER</h1>
             </div>
             <p class="subtitle">Майнинг токенов Ruthash прямо в Telegram</p>
+            <div class="user-id" id="userId">ID: загрузка...</div>
         </header>
         
         <div class="dashboard">
@@ -370,7 +378,9 @@
             threads: 1,
             throttle: 0.5,
             autoStart: false,
-            conversionRate: 0.00005 // 1000 хешей = 0.05 Ruthash (0.05 / 1000 = 0.00005)
+            conversionRate: 0.00005, // 1000 хешей = 0.05 Ruthash (0.05 / 1000 = 0.00005)
+            saveInterval: 30000, // автосохранение каждые 30 секунд
+            userId: null
         };
         
         // Элементы DOM
@@ -386,7 +396,8 @@
             hashRate: document.getElementById('hashRate'),
             coins: document.getElementById('coins'),
             threads: document.getElementById('threads'),
-            uptime: document.getElementById('uptime')
+            uptime: document.getElementById('uptime'),
+            userId: document.getElementById('userId')
         };
         
         // Состояние приложения
@@ -398,14 +409,107 @@
             worker: null,
             threads: 1,
             coins: 0,
-            hashInterval: null
+            hashInterval: null,
+            sessionHashes: 0,
+            savedData: null,
+            sessionStart: null,
+            userData: {
+                totalHashes: 0,
+                totalCoins: 0,
+                totalTime: 0,
+                sessions: 0
+            }
         };
         
         // Инициализация Telegram Web App
         function initTelegram() {
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-            Telegram.WebApp.enableClosingConfirmation();
+            try {
+                Telegram.WebApp.ready();
+                Telegram.WebApp.expand();
+                Telegram.WebApp.enableClosingConfirmation();
+                
+                // Получаем ID пользователя
+                const user = Telegram.WebApp.initDataUnsafe.user;
+                if (user && user.id) {
+                    config.userId = user.id;
+                    elements.userId.textContent = `ID: ${user.id}`;
+                } else {
+                    config.userId = `anon_${Math.floor(Math.random() * 1000000)}`;
+                    elements.userId.textContent = `ID: анонимный`;
+                }
+                
+                // Загружаем данные пользователя
+                loadUserData();
+            } catch (e) {
+                console.error('Telegram Web App error:', e);
+                config.userId = `anon_${Math.floor(Math.random() * 1000000)}`;
+                elements.userId.textContent = `ID: анонимный`;
+            }
+        }
+        
+        // Генерация уникального ID пользователя
+        function generateUserId() {
+            return 'user_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // Сохранение данных пользователя
+        function saveUserData() {
+            if (!config.userId) return;
+            
+            // Обновляем данные перед сохранением
+            if (state.mining && state.sessionStart) {
+                const sessionTime = Math.floor((Date.now() - state.sessionStart) / 1000);
+                state.userData.totalTime += sessionTime;
+            }
+            
+            state.userData.totalHashes = state.savedData.totalHashes + state.sessionHashes;
+            state.userData.totalCoins = state.savedData.totalCoins + (state.sessionHashes * config.conversionRate);
+            
+            try {
+                // Используем localStorage для сохранения
+                localStorage.setItem(`ruthash_user_${config.userId}`, JSON.stringify(state.userData));
+                console.log('Данные сохранены');
+            } catch (e) {
+                console.error('Ошибка сохранения:', e);
+            }
+        }
+        
+        // Загрузка данных пользователя
+        function loadUserData() {
+            if (!config.userId) return;
+            
+            try {
+                const savedData = localStorage.getItem(`ruthash_user_${config.userId}`);
+                if (savedData) {
+                    state.savedData = JSON.parse(savedData);
+                    state.userData = {...state.savedData};
+                    state.sessionHashes = 0;
+                    
+                    // Обновляем UI
+                    elements.totalHashes.textContent = state.userData.totalHashes.toLocaleString();
+                    elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' Ruthash';
+                    
+                    console.log('Данные загружены:', state.userData);
+                } else {
+                    state.savedData = {
+                        totalHashes: 0,
+                        totalCoins: 0,
+                        totalTime: 0,
+                        sessions: 0
+                    };
+                    state.userData = {...state.savedData};
+                    console.log('Созданы новые данные пользователя');
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки:', e);
+                state.savedData = {
+                    totalHashes: 0,
+                    totalCoins: 0,
+                    totalTime: 0,
+                    sessions: 0
+                };
+                state.userData = {...state.savedData};
+            }
         }
         
         // Инициализация приложения
@@ -420,6 +524,18 @@
             elements.startBtn.addEventListener('click', startMining);
             elements.stopBtn.addEventListener('click', stopMining);
             
+            // Автосохранение
+            setInterval(() => {
+                if (state.mining) {
+                    saveUserData();
+                }
+            }, config.saveInterval);
+            
+            // Сохранение при закрытии
+            window.addEventListener('beforeunload', () => {
+                saveUserData();
+            });
+            
             // Запуск обновления интерфейса
             requestAnimationFrame(updateUI);
         }
@@ -428,19 +544,21 @@
         function updateUI() {
             if (state.mining) {
                 // Расчет монет
-                state.coins = state.totalHashes * config.conversionRate;
+                const sessionCoins = state.sessionHashes * config.conversionRate;
+                const totalCoins = (state.userData.totalCoins || 0) + sessionCoins;
                 
                 // Обновление элементов
                 elements.currentHashes.textContent = state.hashesPerSecond;
-                elements.totalHashes.textContent = state.totalHashes.toLocaleString();
+                elements.totalHashes.textContent = (state.userData.totalHashes + state.sessionHashes).toLocaleString();
                 elements.hashRate.textContent = state.hashesPerSecond + ' H/s';
-                elements.coins.textContent = state.coins.toFixed(4) + ' Ruthash';
+                elements.coins.textContent = totalCoins.toFixed(4) + ' Ruthash';
                 
                 // Расчет времени работы
-                if (state.startTime) {
-                    const seconds = Math.floor((Date.now() - state.startTime) / 1000);
-                    const minutes = Math.floor(seconds / 60);
-                    const remainingSeconds = seconds % 60;
+                if (state.sessionStart) {
+                    const seconds = Math.floor((Date.now() - state.sessionStart) / 1000);
+                    const totalSeconds = (state.userData.totalTime || 0) + seconds;
+                    const minutes = Math.floor(totalSeconds / 60);
+                    const remainingSeconds = totalSeconds % 60;
                     elements.uptime.textContent = 
                         `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
                 }
@@ -469,14 +587,17 @@
             if (state.mining) return;
             
             state.mining = true;
-            state.startTime = Date.now();
+            state.sessionStart = Date.now();
+            
+            // Увеличиваем счетчик сессий
+            state.userData.sessions += 1;
             
             // Запускаем симуляцию майнинга
             state.hashInterval = setInterval(() => {
                 // Генерируем "хеши" в зависимости от настроек
                 const baseHashes = 20 + Math.floor(Math.random() * 30);
                 state.hashesPerSecond = Math.floor(baseHashes * config.throttle * config.threads);
-                state.totalHashes += state.hashesPerSecond;
+                state.sessionHashes += state.hashesPerSecond;
             }, 1000);
             
             // UI изменения
@@ -493,6 +614,9 @@
             
             state.mining = false;
             clearInterval(state.hashInterval);
+            
+            // Сохраняем данные
+            saveUserData();
             
             // UI изменения
             elements.startBtn.disabled = false;
