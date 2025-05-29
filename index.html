@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RUTHASH - Telegram Miner</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #6a11cb;
             --secondary: #2575fc;
             --accent: #2ecc71;
+            --gold: #f1c40f;
             --danger: #ff416c;
             --dark: #1a1a2e;
             --darker: #16213e;
+            --upgrade-bg: rgba(41, 128, 185, 0.2);
         }
         
         * {
@@ -46,6 +49,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
         
         .logo {
@@ -57,22 +61,24 @@
         }
         
         .logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 24px;
+            box-shadow: 0 0 15px rgba(106, 17, 203, 0.5);
         }
         
         h1 {
             font-size: 1.8rem;
-            background: linear-gradient(45deg, #00b4db, #0083b0);
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .subtitle {
@@ -95,6 +101,11 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
         }
         
         .card-title {
@@ -116,6 +127,12 @@
             background: rgba(0, 0, 0, 0.2);
             border-radius: 15px;
             padding: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: scale(1.02);
         }
         
         .stat-item h3 {
@@ -130,12 +147,28 @@
             color: var(--accent);
         }
         
+        .gold-value {
+            color: var(--gold);
+        }
+        
         .mining-area {
             text-align: center;
             margin: 20px 0;
             padding: 15px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mining-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
         
         .hashes {
@@ -144,12 +177,13 @@
             color: var(--accent);
             text-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
             margin: 10px 0;
+            transition: all 0.5s ease;
         }
         
         .coins {
             font-size: 1.8rem;
             font-weight: bold;
-            color: #f1c40f;
+            color: var(--gold);
             margin: 10px 0;
         }
         
@@ -186,6 +220,7 @@
             border-radius: 50%;
             background: var(--secondary);
             cursor: pointer;
+            box-shadow: 0 0 10px rgba(37, 117, 252, 0.5);
         }
         
         .btn-group {
@@ -209,6 +244,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         
         .btn-stop {
@@ -217,6 +253,14 @@
         
         .btn:active {
             transform: scale(0.98);
+        }
+        
+        .btn-upgrade {
+            background: linear-gradient(45deg, #f1c40f, #f39c12);
+        }
+        
+        .btn-buy {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
         }
         
         .info {
@@ -255,6 +299,12 @@
             border-radius: 15px;
             text-decoration: none;
             font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .telegram-btn:hover {
+            background: #0066a6;
+            transform: translateY(-2px);
         }
         
         .conversion {
@@ -270,13 +320,156 @@
             opacity: 0.6;
             margin-top: 10px;
         }
+        
+        .upgrade-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .upgrade-item {
+            background: var(--upgrade-bg);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .upgrade-item:hover {
+            background: rgba(41, 128, 185, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .upgrade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .upgrade-title {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .upgrade-cost {
+            background: rgba(241, 196, 15, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: var(--gold);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .upgrade-description {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        .upgrade-benefit {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .rutcoin-display {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(241, 196, 15, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: var(--gold);
+            border: 1px solid rgba(241, 196, 15, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .stars-currency {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: var(--gold);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(46, 204, 113, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        @media (max-width: 600px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .hashes {
+                font-size: 2.5rem;
+            }
+            
+            .coins {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="notification" id="notification">Улучшение куплено!</div>
+    
     <div class="container">
         <header>
+            <div class="rutcoin-display">
+                <i class="fas fa-coins"></i>
+                <span id="rutcoinAmount">0.0000 RUTCOIN</span>
+            </div>
+            
             <div class="logo">
-                <div class="logo-icon">R</div>
+                <div class="logo-icon pulse">R</div>
                 <h1>RUTHASH MINER</h1>
             </div>
             <p class="subtitle">Майнинг токенов Ruthash прямо в Telegram</p>
@@ -285,16 +478,19 @@
         
         <div class="dashboard">
             <div class="card">
-                <div class="card-title">💰 Ваш баланс</div>
+                <div class="card-title"><i class="fas fa-coins"></i> Ваш баланс</div>
                 <div class="mining-area">
                     <div class="hashes" id="hashRate">0 H/s</div>
-                    <div class="conversion">1000 H/s = 0.05 Ruthash</div>
-                    <div class="coins" id="coins">0.0000 Ruthash</div>
+                    <div class="conversion">Конверсия: 1000 хешей = 0.5 RUTHASH = 0.01 RUTCOIN</div>
+                    <div class="coins" id="coins">0.0000 RUTHASH</div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="miningProgress" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
             
             <div class="card">
-                <div class="card-title">📊 Статистика</div>
+                <div class="card-title"><i class="fas fa-chart-line"></i> Статистика</div>
                 <div class="stats">
                     <div class="stat-item">
                         <h3>Хешей в секунду</h3>
@@ -305,8 +501,8 @@
                         <div class="stat-value" id="totalHashes">0</div>
                     </div>
                     <div class="stat-item">
-                        <h3>Потоков</h3>
-                        <div class="stat-value" id="threads">1</div>
+                        <h3>Уровень улучшений</h3>
+                        <div class="stat-value" id="upgradeLevel">0</div>
                     </div>
                     <div class="stat-item">
                         <h3>Время работы</h3>
@@ -316,7 +512,7 @@
             </div>
             
             <div class="card">
-                <div class="card-title">⚙️ Управление майнингом</div>
+                <div class="card-title"><i class="fas fa-cogs"></i> Управление майнингом</div>
                 <div class="controls">
                     <div class="slider-container">
                         <div class="slider-label">
@@ -336,31 +532,84 @@
                     
                     <div class="btn-group">
                         <button class="btn" id="startBtn">
-                            <span>▶️ Старт</span>
+                            <i class="fas fa-play"></i> Старт
                         </button>
                         <button class="btn btn-stop" id="stopBtn" disabled>
-                            <span>⏹️ Стоп</span>
+                            <i class="fas fa-stop"></i> Стоп
                         </button>
                     </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title"><i class="fas fa-rocket"></i> Улучшения майнинга</div>
+                <div class="upgrade-container">
+                    <div class="upgrade-item">
+                        <div class="upgrade-header">
+                            <div class="upgrade-title">Улучшение процессора</div>
+                            <div class="upgrade-cost">
+                                <i class="fas fa-star"></i> <span id="upgrade1Cost">5</span>
+                            </div>
+                        </div>
+                        <div class="upgrade-description">Увеличивает базовую скорость майнинга на 10 H/s</div>
+                        <div class="upgrade-benefit">
+                            <span>Текущий бонус: <span id="upgrade1Bonus">0 H/s</span></span>
+                            <button class="btn btn-upgrade" onclick="buyUpgrade(1)">Купить</button>
+                        </div>
+                    </div>
+                    
+                    <div class="upgrade-item">
+                        <div class="upgrade-header">
+                            <div class="upgrade-title">Улучшение видеокарты</div>
+                            <div class="upgrade-cost">
+                                <i class="fas fa-star"></i> <span id="upgrade2Cost">15</span>
+                            </div>
+                        </div>
+                        <div class="upgrade-description">Увеличивает базовую скорость майнинга на 25 H/s</div>
+                        <div class="upgrade-benefit">
+                            <span>Текущий бонус: <span id="upgrade2Bonus">0 H/s</span></span>
+                            <button class="btn btn-upgrade" onclick="buyUpgrade(2)">Купить</button>
+                        </div>
+                    </div>
+                    
+                    <div class="upgrade-item">
+                        <div class="upgrade-header">
+                            <div class="upgrade-title">Профессиональная ферма</div>
+                            <div class="upgrade-cost">
+                                <i class="fas fa-star"></i> <span id="upgrade3Cost">30</span>
+                            </div>
+                        </div>
+                        <div class="upgrade-description">Увеличивает базовую скорость майнинга на 60 H/s</div>
+                        <div class="upgrade-benefit">
+                            <span>Текущий бонус: <span id="upgrade3Bonus">0 H/s</span></span>
+                            <button class="btn btn-upgrade" onclick="buyUpgrade(3)">Купить</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="stars-currency">
+                    <i class="fas fa-info-circle"></i> 1 RUTHASH = 5 звёзд. Не хватает звёзд? 
+                    <button class="btn btn-buy" onclick="buyStars()" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 5px;">
+                        Купить звёзды
+                    </button>
                 </div>
             </div>
         </div>
         
         <div class="card">
-            <div class="card-title">ℹ️ О проекте RUTHASH</div>
+            <div class="card-title"><i class="fas fa-info-circle"></i> О проекте RUTHASH</div>
             <p class="info">
                 Приложение использует мощности вашего устройства для майнинга токенов Ruthash.
                 <br><br>
-                <strong>Конверсия:</strong> 1000 хешей = 0.05 Ruthash = 0.001 RUTCOIN
+                <strong>Конверсия:</strong> 1000 хешей = 0.5 RUTHASH = 0.01 RUTCOIN
                 <br><br>
-                Токены Ruthash будут конвертированы в RutCoin после окончания майнинга (07.2025).
+                Токены RUTHASH будут конвертированы в RUTCOIN после окончания майнинга (07.2025).
                 <br><br>
                 Для лучшей производительности:
             </p>
             <ul class="info">
                 <li>Подключите телефон к зарядному устройству</li>
                 <li>Закройте другие приложения</li>
-                <li>Используйте последнюю версию Telegram</li>
+                <li>Используйте улучшения для увеличения скорости</li>
             </ul>
         </div>
         
@@ -369,7 +618,9 @@
             Не рекомендуется использовать на старых устройствах длительное время.
         </div>
         
-        <a href="https://t.me/" class="telegram-btn">Наш Telegram-канал</a>
+        <a href="https://t.me/" class="telegram-btn">
+            <i class="fab fa-telegram"></i> Наш Telegram-канал
+        </a>
     </div>
 
     <script>
@@ -378,9 +629,16 @@
             threads: 1,
             throttle: 0.5,
             autoStart: false,
-            conversionRate: 0.00005, // 1000 хешей = 0.05 Ruthash (0.05 / 1000 = 0.00005)
-            saveInterval: 30000, // автосохранение каждые 30 секунд
-            userId: null
+            conversionRate: 0.0005, // 1000 хешей = 0.5 RUTHASH
+            rutcoinRate: 0.00001,   // 1000 хешей = 0.01 RUTCOIN
+            saveInterval: 30000,     // автосохранение каждые 30 секунд
+            userId: null,
+            baseHashes: 20,         // Базовая скорость майнинга
+            upgrades: [
+                { id: 1, cost: 5,  bonus: 10,  name: "Улучшение процессора" },
+                { id: 2, cost: 15, bonus: 25,  name: "Улучшение видеокарты" },
+                { id: 3, cost: 30, bonus: 60,  name: "Профессиональная ферма" }
+            ]
         };
         
         // Элементы DOM
@@ -395,10 +653,19 @@
             totalHashes: document.getElementById('totalHashes'),
             hashRate: document.getElementById('hashRate'),
             coins: document.getElementById('coins'),
+            rutcoinAmount: document.getElementById('rutcoinAmount'),
+            upgradeLevel: document.getElementById('upgradeLevel'),
             threads: document.getElementById('threads'),
             uptime: document.getElementById('uptime'),
-            userId: document.getElementById('userId')
+            userId: document.getElementById('userId'),
+            miningProgress: document.getElementById('miningProgress'),
+            notification: document.getElementById('notification')
         };
+        
+        // Обновляем стоимость улучшений в интерфейсе
+        document.getElementById('upgrade1Cost').textContent = config.upgrades[0].cost;
+        document.getElementById('upgrade2Cost').textContent = config.upgrades[1].cost;
+        document.getElementById('upgrade3Cost').textContent = config.upgrades[2].cost;
         
         // Состояние приложения
         const state = {
@@ -409,6 +676,7 @@
             worker: null,
             threads: 1,
             coins: 0,
+            rutcoin: 0,
             hashInterval: null,
             sessionHashes: 0,
             savedData: null,
@@ -416,9 +684,12 @@
             userData: {
                 totalHashes: 0,
                 totalCoins: 0,
+                totalRutcoin: 0,
                 totalTime: 0,
-                sessions: 0
-            }
+                sessions: 0,
+                upgrades: []
+            },
+            activeUpgrades: []
         };
         
         // Инициализация Telegram Web App
@@ -447,11 +718,6 @@
             }
         }
         
-        // Генерация уникального ID пользователя
-        function generateUserId() {
-            return 'user_' + Math.random().toString(36).substr(2, 9);
-        }
-        
         // Сохранение данных пользователя
         function saveUserData() {
             if (!config.userId) return;
@@ -464,6 +730,8 @@
             
             state.userData.totalHashes = state.savedData.totalHashes + state.sessionHashes;
             state.userData.totalCoins = state.savedData.totalCoins + (state.sessionHashes * config.conversionRate);
+            state.userData.totalRutcoin = state.userData.totalCoins * 0.02; // 1 RUTHASH = 0.02 RUTCOIN
+            state.userData.upgrades = state.activeUpgrades;
             
             try {
                 // Используем localStorage для сохранения
@@ -484,20 +752,29 @@
                     state.savedData = JSON.parse(savedData);
                     state.userData = {...state.savedData};
                     state.sessionHashes = 0;
+                    state.activeUpgrades = state.userData.upgrades || [];
                     
                     // Обновляем UI
                     elements.totalHashes.textContent = state.userData.totalHashes.toLocaleString();
-                    elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' Ruthash';
+                    elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' RUTHASH';
+                    elements.rutcoinAmount.textContent = state.userData.totalRutcoin.toFixed(4) + ' RUTCOIN';
+                    elements.upgradeLevel.textContent = state.activeUpgrades.length;
+                    
+                    // Обновляем бонусы улучшений
+                    updateUpgradeBonuses();
                     
                     console.log('Данные загружены:', state.userData);
                 } else {
                     state.savedData = {
                         totalHashes: 0,
                         totalCoins: 0,
+                        totalRutcoin: 0,
                         totalTime: 0,
-                        sessions: 0
+                        sessions: 0,
+                        upgrades: []
                     };
                     state.userData = {...state.savedData};
+                    state.activeUpgrades = [];
                     console.log('Созданы новые данные пользователя');
                 }
             } catch (e) {
@@ -505,11 +782,93 @@
                 state.savedData = {
                     totalHashes: 0,
                     totalCoins: 0,
+                    totalRutcoin: 0,
                     totalTime: 0,
-                    sessions: 0
+                    sessions: 0,
+                    upgrades: []
                 };
                 state.userData = {...state.savedData};
+                state.activeUpgrades = [];
             }
+        }
+        
+        // Расчет бонуса от улучшений
+        function calculateUpgradeBonus() {
+            return state.activeUpgrades.reduce((total, upgradeId) => {
+                const upgrade = config.upgrades.find(u => u.id === upgradeId);
+                return total + (upgrade ? upgrade.bonus : 0);
+            }, 0);
+        }
+        
+        // Обновление отображения бонусов улучшений
+        function updateUpgradeBonuses() {
+            const bonus = calculateUpgradeBonus();
+            
+            // Обновляем бонусы в интерфейсе
+            document.getElementById('upgrade1Bonus').textContent = 
+                state.activeUpgrades.includes(1) ? "10 H/s" : "0 H/s";
+            document.getElementById('upgrade2Bonus').textContent = 
+                state.activeUpgrades.includes(2) ? "25 H/s" : "0 H/s";
+            document.getElementById('upgrade3Bonus').textContent = 
+                state.activeUpgrades.includes(3) ? "60 H/s" : "0 H/s";
+            
+            return bonus;
+        }
+        
+        // Покупка улучшения
+        function buyUpgrade(upgradeId) {
+            const upgrade = config.upgrades.find(u => u.id === upgradeId);
+            if (!upgrade) return;
+            
+            // Проверяем, есть ли уже это улучшение
+            if (state.activeUpgrades.includes(upgradeId)) {
+                showNotification("У вас уже есть это улучшение!");
+                return;
+            }
+            
+            // Проверяем баланс
+            const starsNeeded = upgrade.cost;
+            const coinsNeeded = starsNeeded / 5; // 1 RUTHASH = 5 звёзд
+            
+            if (state.userData.totalCoins >= coinsNeeded) {
+                // Покупка за RUTHASH
+                state.userData.totalCoins -= coinsNeeded;
+                state.activeUpgrades.push(upgradeId);
+                
+                // Обновляем UI
+                updateUpgradeBonuses();
+                elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' RUTHASH';
+                elements.upgradeLevel.textContent = state.activeUpgrades.length;
+                
+                // Показываем уведомление
+                showNotification(`Улучшение "${upgrade.name}" куплено!`);
+                
+                // Сохраняем данные
+                saveUserData();
+            } else {
+                // Недостаточно средств
+                showNotification(`Недостаточно RUTHASH. Нужно: ${coinsNeeded.toFixed(2)}`);
+            }
+        }
+        
+        // Покупка звезд (симуляция)
+        function buyStars() {
+            // В реальном приложении здесь будет вызов Telegram.WebApp.openInvoice
+            // Для демонстрации просто добавляем 5 RUTHASH
+            state.userData.totalCoins += 5;
+            elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' RUTHASH';
+            
+            showNotification("Куплено 25 звёзд (5 RUTHASH)!");
+            saveUserData();
+        }
+        
+        // Показать уведомление
+        function showNotification(message) {
+            elements.notification.textContent = message;
+            elements.notification.style.display = 'block';
+            setTimeout(() => {
+                elements.notification.style.display = 'none';
+            }, 3000);
         }
         
         // Инициализация приложения
@@ -543,15 +902,32 @@
         // Обновление UI
         function updateUI() {
             if (state.mining) {
-                // Расчет монет
-                const sessionCoins = state.sessionHashes * config.conversionRate;
-                const totalCoins = (state.userData.totalCoins || 0) + sessionCoins;
+                // Расчет бонусов от улучшений
+                const upgradeBonus = calculateUpgradeBonus();
+                
+                // Расчет скорости майнинга с учетом улучшений
+                const baseHashes = config.baseHashes + upgradeBonus;
+                state.hashesPerSecond = Math.floor(baseHashes * config.throttle * config.threads);
+                
+                // Обновляем хеши
+                state.sessionHashes += state.hashesPerSecond;
+                
+                // Обновляем прогресс
+                const progress = Math.min(100, (state.sessionHashes % 1000) / 10);
+                elements.miningProgress.style.width = `${progress}%`;
                 
                 // Обновление элементов
                 elements.currentHashes.textContent = state.hashesPerSecond;
                 elements.totalHashes.textContent = (state.userData.totalHashes + state.sessionHashes).toLocaleString();
                 elements.hashRate.textContent = state.hashesPerSecond + ' H/s';
-                elements.coins.textContent = totalCoins.toFixed(4) + ' Ruthash';
+                
+                // Расчет монет
+                const sessionCoins = state.sessionHashes * config.conversionRate;
+                const totalCoins = (state.userData.totalCoins || 0) + sessionCoins;
+                const totalRutcoin = totalCoins * 0.02; // 1 RUTHASH = 0.02 RUTCOIN
+                
+                elements.coins.textContent = totalCoins.toFixed(4) + ' RUTHASH';
+                elements.rutcoinAmount.textContent = totalRutcoin.toFixed(4) + ' RUTCOIN';
                 
                 // Расчет времени работы
                 if (state.sessionStart) {
@@ -592,14 +968,6 @@
             // Увеличиваем счетчик сессий
             state.userData.sessions += 1;
             
-            // Запускаем симуляцию майнинга
-            state.hashInterval = setInterval(() => {
-                // Генерируем "хеши" в зависимости от настроек
-                const baseHashes = 20 + Math.floor(Math.random() * 30);
-                state.hashesPerSecond = Math.floor(baseHashes * config.throttle * config.threads);
-                state.sessionHashes += state.hashesPerSecond;
-            }, 1000);
-            
             // UI изменения
             elements.startBtn.disabled = true;
             elements.stopBtn.disabled = false;
@@ -613,7 +981,6 @@
             if (!state.mining) return;
             
             state.mining = false;
-            clearInterval(state.hashInterval);
             
             // Сохраняем данные
             saveUserData();
