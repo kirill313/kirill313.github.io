@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RUTHASH - Telegram Miner</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --accent: #2ecc71;
+            --danger: #ff416c;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #00b4db, #0083b0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: rgba(30, 40, 60, 0.6);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 12px;
+        }
+        
+        .stat-item h3 {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .mining-area {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+        }
+        
+        .hashes {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
+            margin: 10px 0;
+        }
+        
+        .coins {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #f1c40f;
+            margin: 10px 0;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .slider-container {
+            margin-bottom: 8px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-stop {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .info {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 15px;
+            line-height: 1.5;
+        }
+        
+        .info ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .info li {
+            margin-bottom: 8px;
+        }
+        
+        .disclaimer {
+            background: rgba(192, 57, 43, 0.2);
+            border-left: 4px solid #e74c3c;
+            padding: 12px;
+            border-radius: 0 10px 10px 0;
+            margin-top: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .telegram-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+            padding: 12px;
+            background: #0088cc;
+            color: white;
+            border-radius: 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .conversion {
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">R</div>
+                <h1>RUTHASH MINER</h1>
+            </div>
+            <p class="subtitle">Майнинг токенов Ruthash прямо в Telegram</p>
+        </header>
+        
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-title">💰 Ваш баланс</div>
+                <div class="mining-area">
+                    <div class="hashes" id="hashRate">0 H/s</div>
+                    <div class="conversion">1000 H/s = 0.05 Ruthash</div>
+                    <div class="coins" id="coins">0.0000 Ruthash</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">📊 Статистика</div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <h3>Хешей в секунду</h3>
+                        <div class="stat-value" id="currentHashes">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Всего хешей</h3>
+                        <div class="stat-value" id="totalHashes">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Потоков</h3>
+                        <div class="stat-value" id="threads">1</div>
+                    </div>
+                    <div class="stat-item">
+                        <h3>Время работы</h3>
+                        <div class="stat-value" id="uptime">00:00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">⚙️ Управление майнингом</div>
+                <div class="controls">
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Мощность:</span>
+                            <span id="cpuPercent">50%</span>
+                        </div>
+                        <input type="range" min="1" max="100" value="50" id="cpuSlider">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Потоки:</span>
+                            <span id="threadCount">1</span>
+                        </div>
+                        <input type="range" min="1" max="4" value="1" id="threadSlider">
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn" id="startBtn">
+                            <span>▶️ Старт</span>
+                        </button>
+                        <button class="btn btn-stop" id="stopBtn" disabled>
+                            <span>⏹️ Стоп</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">ℹ️ О проекте RUTHASH</div>
+            <p class="info">
+                Приложение использует мощности вашего устройства для майнинга токенов Ruthash.
+                <br><br>
+                <strong>Конверсия:</strong> 1000 хешей = 0.05 Ruthash
+                <br><br>
+                Токены Ruthash будут конвертированы в RutCoin после листинга на биржах.
+                <br><br>
+                Для лучшей производительности:
+            </p>
+            <ul class="info">
+                <li>Подключите телефон к зарядному устройству</li>
+                <li>Закройте другие приложения</li>
+                <li>Используйте последнюю версию Telegram</li>
+            </ul>
+        </div>
+        
+        <div class="disclaimer">
+            ⚠️ Майнинг увеличивает нагрузку на процессор и энергопотребление. 
+            Не рекомендуется использовать на старых устройствах длительное время.
+        </div>
+        
+        <a href="https://t.me/" class="telegram-btn">Наш Telegram-канал</a>
+    </div>
+
+    <script>
+        // Конфигурация
+        const config = {
+            threads: 1,
+            throttle: 0.5,
+            autoStart: false,
+            conversionRate: 0.00005 // 1000 хешей = 0.05 Ruthash (0.05 / 1000 = 0.00005)
+        };
+        
+        // Элементы DOM
+        const elements = {
+            startBtn: document.getElementById('startBtn'),
+            stopBtn: document.getElementById('stopBtn'),
+            cpuSlider: document.getElementById('cpuSlider'),
+            threadSlider: document.getElementById('threadSlider'),
+            cpuPercent: document.getElementById('cpuPercent'),
+            threadCount: document.getElementById('threadCount'),
+            currentHashes: document.getElementById('currentHashes'),
+            totalHashes: document.getElementById('totalHashes'),
+            hashRate: document.getElementById('hashRate'),
+            coins: document.getElementById('coins'),
+            threads: document.getElementById('threads'),
+            uptime: document.getElementById('uptime')
+        };
+        
+        // Состояние приложения
+        const state = {
+            mining: false,
+            hashesPerSecond: 0,
+            totalHashes: 0,
+            startTime: null,
+            worker: null,
+            threads: 1,
+            coins: 0,
+            hashInterval: null
+        };
+        
+        // Инициализация Telegram Web App
+        function initTelegram() {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+            Telegram.WebApp.enableClosingConfirmation();
+        }
+        
+        // Инициализация приложения
+        function init() {
+            initTelegram();
+            
+            // Настройка слайдеров
+            elements.cpuSlider.addEventListener('input', updateCpuThrottle);
+            elements.threadSlider.addEventListener('input', updateThreads);
+            
+            // Кнопки управления
+            elements.startBtn.addEventListener('click', startMining);
+            elements.stopBtn.addEventListener('click', stopMining);
+            
+            // Запуск обновления интерфейса
+            requestAnimationFrame(updateUI);
+        }
+        
+        // Обновление UI
+        function updateUI() {
+            if (state.mining) {
+                // Расчет монет
+                state.coins = state.totalHashes * config.conversionRate;
+                
+                // Обновление элементов
+                elements.currentHashes.textContent = state.hashesPerSecond;
+                elements.totalHashes.textContent = state.totalHashes.toLocaleString();
+                elements.hashRate.textContent = state.hashesPerSecond + ' H/s';
+                elements.coins.textContent = state.coins.toFixed(4) + ' Ruthash';
+                
+                // Расчет времени работы
+                if (state.startTime) {
+                    const seconds = Math.floor((Date.now() - state.startTime) / 1000);
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    elements.uptime.textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+                }
+            }
+            
+            requestAnimationFrame(updateUI);
+        }
+        
+        // Обновление нагрузки на CPU
+        function updateCpuThrottle() {
+            const value = elements.cpuSlider.value;
+            elements.cpuPercent.textContent = value + '%';
+            config.throttle = value / 100;
+        }
+        
+        // Обновление количества потоков
+        function updateThreads() {
+            const value = elements.threadSlider.value;
+            elements.threadCount.textContent = value;
+            elements.threads.textContent = value;
+            config.threads = parseInt(value);
+        }
+        
+        // Запуск майнинга
+        function startMining() {
+            if (state.mining) return;
+            
+            state.mining = true;
+            state.startTime = Date.now();
+            
+            // Запускаем симуляцию майнинга
+            state.hashInterval = setInterval(() => {
+                // Генерируем "хеши" в зависимости от настроек
+                const baseHashes = 20 + Math.floor(Math.random() * 30);
+                state.hashesPerSecond = Math.floor(baseHashes * config.throttle * config.threads);
+                state.totalHashes += state.hashesPerSecond;
+            }, 1000);
+            
+            // UI изменения
+            elements.startBtn.disabled = true;
+            elements.stopBtn.disabled = false;
+            
+            // Вибрация для мобильных устройств (100ms)
+            if (navigator.vibrate) navigator.vibrate(100);
+        }
+        
+        // Остановка майнинга
+        function stopMining() {
+            if (!state.mining) return;
+            
+            state.mining = false;
+            clearInterval(state.hashInterval);
+            
+            // UI изменения
+            elements.startBtn.disabled = false;
+            elements.stopBtn.disabled = true;
+            
+            // Вибрация для мобильных устройств (50ms)
+            if (navigator.vibrate) navigator.vibrate(50);
+        }
+        
+        // Запуск приложения после загрузки страницы
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
