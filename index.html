@@ -16,6 +16,7 @@
             --dark: #1a1a2e;
             --darker: #16213e;
             --upgrade-bg: rgba(41, 128, 185, 0.2);
+            --nav-bg: rgba(30, 40, 60, 0.8);
         }
         
         * {
@@ -30,14 +31,14 @@
             background: linear-gradient(135deg, var(--darker), var(--dark));
             color: #f0f0f0;
             min-height: 100vh;
-            padding: 15px;
+            padding: 0;
             overflow-x: hidden;
         }
         
         .container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 10px;
+            padding: 0 15px 70px; /* Отступ снизу для навигации */
         }
         
         header {
@@ -45,11 +46,13 @@
             margin-bottom: 20px;
             padding: 15px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
+            border-radius: 0 0 20px 20px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            position: relative;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
         .logo {
@@ -85,6 +88,21 @@
             font-size: 0.9rem;
             opacity: 0.8;
             margin-top: 5px;
+        }
+        
+        .rutcoin-display {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(241, 196, 15, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: var(--gold);
+            border: 1px solid rgba(241, 196, 15, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .dashboard {
@@ -263,6 +281,11 @@
             background: linear-gradient(45deg, #27ae60, #2ecc71);
         }
         
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
         .info {
             font-size: 0.85rem;
             opacity: 0.8;
@@ -378,21 +401,6 @@
             margin-top: 5px;
         }
         
-        .rutcoin-display {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(241, 196, 15, 0.1);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            color: var(--gold);
-            border: 1px solid rgba(241, 196, 15, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
         .progress-container {
             width: 100%;
             height: 8px;
@@ -443,6 +451,79 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .nav-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px 15px;
+            border-radius: 15px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 33%;
+        }
+        
+        .nav-btn.active {
+            background: rgba(106, 17, 203, 0.3);
+            color: white;
+        }
+        
+        .nav-btn i {
+            font-size: 1.2rem;
+        }
+        
+        .power-level {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            padding: 8px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        
+        .power-level span {
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        .format-number {
+            font-size: 1.2rem;
+        }
+        
         @media (max-width: 600px) {
             .stats {
                 grid-template-columns: 1fr;
@@ -454,6 +535,11 @@
             
             .coins {
                 font-size: 1.5rem;
+            }
+            
+            .nav-btn {
+                padding: 8px 5px;
+                font-size: 0.7rem;
             }
         }
     </style>
@@ -472,155 +558,288 @@
                 <div class="logo-icon pulse">R</div>
                 <h1>RUTHASH MINER</h1>
             </div>
-            <p class="subtitle">Майнинг токенов Ruthash прямо в Telegram</p>
             <div class="user-id" id="userId">ID: загрузка...</div>
         </header>
         
-        <div class="dashboard">
-            <div class="card">
-                <div class="card-title"><i class="fas fa-coins"></i> Ваш баланс</div>
-                <div class="mining-area">
-                    <div class="hashes" id="hashRate">0 H/s</div>
-                    <div class="conversion">Конверсия: 1000 хешей = 0.5 RUTHASH = 0.01 RUTCOIN</div>
-                    <div class="coins" id="coins">0.0000 RUTHASH</div>
-                    <div class="progress-container">
-                        <div class="progress-bar" id="miningProgress" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title"><i class="fas fa-chart-line"></i> Статистика</div>
-                <div class="stats">
-                    <div class="stat-item">
-                        <h3>Хешей в секунду</h3>
-                        <div class="stat-value" id="currentHashes">0</div>
-                    </div>
-                    <div class="stat-item">
-                        <h3>Всего хешей</h3>
-                        <div class="stat-value" id="totalHashes">0</div>
-                    </div>
-                    <div class="stat-item">
-                        <h3>Уровень улучшений</h3>
-                        <div class="stat-value" id="upgradeLevel">0</div>
-                    </div>
-                    <div class="stat-item">
-                        <h3>Время работы</h3>
-                        <div class="stat-value" id="uptime">00:00</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title"><i class="fas fa-cogs"></i> Управление майнингом</div>
-                <div class="controls">
-                    <div class="slider-container">
-                        <div class="slider-label">
-                            <span>Мощность:</span>
-                            <span id="cpuPercent">50%</span>
+        <!-- Главная вкладка -->
+        <div id="main-tab" class="tab-content active">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-coins"></i> Ваш баланс</div>
+                    <div class="mining-area">
+                        <div class="hashes" id="hashRate">0 H/s</div>
+                        <div class="conversion">Конверсия: 1000 хешей = 0.5 RUTHASH = 0.01 RUTCOIN</div>
+                        <div class="coins" id="coins">0.0000 RUTHASH</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="miningProgress" style="width: 0%"></div>
                         </div>
-                        <input type="range" min="1" max="100" value="50" id="cpuSlider">
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-label">
-                            <span>Потоки:</span>
-                            <span id="threadCount">1</span>
-                        </div>
-                        <input type="range" min="1" max="4" value="1" id="threadSlider">
-                    </div>
-                    
-                    <div class="btn-group">
-                        <button class="btn" id="startBtn">
-                            <i class="fas fa-play"></i> Старт
-                        </button>
-                        <button class="btn btn-stop" id="stopBtn" disabled>
-                            <i class="fas fa-stop"></i> Стоп
-                        </button>
                     </div>
                 </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title"><i class="fas fa-rocket"></i> Улучшения майнинга</div>
-                <div class="upgrade-container">
-                    <div class="upgrade-item">
-                        <div class="upgrade-header">
-                            <div class="upgrade-title">Улучшение процессора</div>
-                            <div class="upgrade-cost">
-                                <i class="fas fa-star"></i> <span id="upgrade1Cost">5</span>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-chart-line"></i> Статистика</div>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <h3>Хешей в секунду</h3>
+                            <div class="stat-value" id="currentHashes">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <h3>Всего хешей</h3>
+                            <div class="stat-value format-number" id="totalHashes">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <h3>Уровень улучшений</h3>
+                            <div class="stat-value" id="upgradeLevel">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <h3>Время работы</h3>
+                            <div class="stat-value" id="uptime">00:00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-cogs"></i> Управление майнингом</div>
+                    <div class="controls">
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>Мощность:</span>
+                                <span id="cpuPercent">50%</span>
                             </div>
+                            <input type="range" min="1" max="100" value="50" id="cpuSlider">
                         </div>
-                        <div class="upgrade-description">Увеличивает базовую скорость майнинга на 10 H/s</div>
-                        <div class="upgrade-benefit">
-                            <span>Текущий бонус: <span id="upgrade1Bonus">0 H/s</span></span>
-                            <button class="btn btn-upgrade" onclick="buyUpgrade(1)">Купить</button>
-                        </div>
-                    </div>
-                    
-                    <div class="upgrade-item">
-                        <div class="upgrade-header">
-                            <div class="upgrade-title">Улучшение видеокарты</div>
-                            <div class="upgrade-cost">
-                                <i class="fas fa-star"></i> <span id="upgrade2Cost">15</span>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>Потоки:</span>
+                                <span id="threadCount">1</span>
                             </div>
+                            <input type="range" min="1" max="4" value="1" id="threadSlider">
                         </div>
-                        <div class="upgrade-description">Увеличивает базовую скорость майнинга на 25 H/s</div>
-                        <div class="upgrade-benefit">
-                            <span>Текущий бонус: <span id="upgrade2Bonus">0 H/s</span></span>
-                            <button class="btn btn-upgrade" onclick="buyUpgrade(2)">Купить</button>
-                        </div>
-                    </div>
-                    
-                    <div class="upgrade-item">
-                        <div class="upgrade-header">
-                            <div class="upgrade-title">Профессиональная ферма</div>
-                            <div class="upgrade-cost">
-                                <i class="fas fa-star"></i> <span id="upgrade3Cost">30</span>
-                            </div>
-                        </div>
-                        <div class="upgrade-description">Увеличивает базовую скорость майнинга на 60 H/s</div>
-                        <div class="upgrade-benefit">
-                            <span>Текущий бонус: <span id="upgrade3Bonus">0 H/s</span></span>
-                            <button class="btn btn-upgrade" onclick="buyUpgrade(3)">Купить</button>
+                        
+                        <div class="btn-group">
+                            <button class="btn" id="startBtn">
+                                <i class="fas fa-play"></i> Старт
+                            </button>
+                            <button class="btn btn-stop" id="stopBtn" disabled>
+                                <i class="fas fa-stop"></i> Стоп
+                            </button>
                         </div>
                     </div>
-                </div>
-                <div class="stars-currency">
-                    <i class="fas fa-info-circle"></i> 1 RUTHASH = 5 звёзд. Не хватает звёзд? 
-                    <button class="btn btn-buy" onclick="buyStars()" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 5px;">
-                        Купить звёзды
-                    </button>
                 </div>
             </div>
         </div>
         
-        <div class="card">
-            <div class="card-title"><i class="fas fa-info-circle"></i> О проекте RUTHASH</div>
-            <p class="info">
-                Приложение использует мощности вашего устройства для майнинга токенов Ruthash.
-                <br><br>
-                <strong>Конверсия:</strong> 1000 хешей = 0.5 RUTHASH = 0.01 RUTCOIN
-                <br><br>
-                Токены RUTHASH будут конвертированы в RUTCOIN после окончания майнинга (07.2025).
-                <br><br>
-                Для лучшей производительности:
-            </p>
-            <ul class="info">
-                <li>Подключите телефон к зарядному устройству</li>
-                <li>Закройте другие приложения</li>
-                <li>Используйте улучшения для увеличения скорости</li>
-            </ul>
+        <!-- Вкладка улучшений -->
+        <div id="upgrades-tab" class="tab-content">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-rocket"></i> Улучшения мощности</div>
+                    <div class="upgrade-container">
+                        <div class="upgrade-item">
+                            <div class="upgrade-header">
+                                <div class="upgrade-title">Мощность 50%</div>
+                                <div class="upgrade-cost">
+                                    <i class="fas fa-coins"></i> <span>1000</span>
+                                </div>
+                            </div>
+                            <div class="upgrade-description">Разблокирует мощность процессора до 50%</div>
+                            <div class="power-level">
+                                <span>Текущий уровень: <span id="powerLevel">0%</span></span>
+                                <button class="btn btn-upgrade" id="upgradePower1">Купить</button>
+                            </div>
+                        </div>
+                        
+                        <div class="upgrade-item">
+                            <div class="upgrade-header">
+                                <div class="upgrade-title">Мощность 75%</div>
+                                <div class="upgrade-cost">
+                                    <i class="fas fa-coins"></i> <span>2000</span>
+                                </div>
+                            </div>
+                            <div class="upgrade-description">Разблокирует мощность процессора до 75%</div>
+                            <div class="power-level">
+                                <span>Текущий уровень: <span id="powerLevel">0%</span></span>
+                                <button class="btn btn-upgrade" id="upgradePower2">Купить</button>
+                            </div>
+                        </div>
+                        
+                        <div class="upgrade-item">
+                            <div class="upgrade-header">
+                                <div class="upgrade-title">Мощность 100%</div>
+                                <div class="upgrade-cost">
+                                    <i class="fas fa-coins"></i> <span>7500</span>
+                                </div>
+                            </div>
+                            <div class="upgrade-description">Разблокирует полную мощность процессора</div>
+                            <div class="power-level">
+                                <span>Текущий уровень: <span id="powerLevel">0%</span></span>
+                                <button class="btn btn-upgrade" id="upgradePower3">Купить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-microchip"></i> Улучшения майнинга</div>
+                    <div class="upgrade-container">
+                        <div class="upgrade-item">
+                            <div class="upgrade-header">
+                                <div class="upgrade-title">Улучшение процессора</div>
+                                <div class="upgrade-cost">
+                                    <i class="fas fa-star"></i> <span id="upgrade1Cost">5</span>
+                                </div>
+                            </div>
+                            <div class="upgrade-description">Увеличивает базовую скорость майнинга на 10 H/s</div>
+                            <div class="upgrade-benefit">
+                                <span>Текущий бонус: <span id="upgrade1Bonus">0 H/s</span></span>
+                                <button class="btn btn-upgrade" onclick="buyUpgrade(1)">Купить</button>
+                            </div>
+                        </div>
+                        
+                        <div class="upgrade-item">
+                            <div class="upgrade-header">
+                                <div class="upgrade-title">Улучшение видеокарты</div>
+                                <div class="upgrade-cost">
+                                    <i class="fas fa-star"></i> <span id="upgrade2Cost">15</span>
+                                </div>
+                            </div>
+                            <div class="upgrade-description">Увеличивает базовую скорость майнинга на 25 H/s</div>
+                            <div class="upgrade-benefit">
+                                <span>Текущий бонус: <span id="upgrade2Bonus">0 H/s</span></span>
+                                <button class="btn btn-upgrade" onclick="buyUpgrade(2)">Купить</button>
+                            </div>
+                        </div>
+                        
+                        <div class="upgrade-item">
+                            <div class="upgrade-header">
+                                <div class="upgrade-title">Профессиональная ферма</div>
+                                <div class="upgrade-cost">
+                                    <i class="fas fa-star"></i> <span id="upgrade3Cost">30</span>
+                                </div>
+                            </div>
+                            <div class="upgrade-description">Увеличивает базовую скорость майнинга на 60 H/s</div>
+                            <div class="upgrade-benefit">
+                                <span>Текущий бонус: <span id="upgrade3Bonus">0 H/s</span></span>
+                                <button class="btn btn-upgrade" onclick="buyUpgrade(3)">Купить</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stars-currency">
+                        <i class="fas fa-info-circle"></i> 1 RUTHASH = 5 звёзд. Не хватает звёзд? 
+                        <button class="btn btn-buy" onclick="buyStars()" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 5px;">
+                            Купить звёзды
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Вкладка "О проекте" -->
+        <div id="about-tab" class="tab-content">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-info-circle"></i> О проекте RUTHASH</div>
+                    <p class="info">
+                        RUTHASH Miner - это инновационное приложение для майнинга криптовалюты прямо в Telegram. 
+                        Наша миссия - сделать майнинг доступным для каждого пользователя смартфона или компьютера.
+                    </p>
+                    
+                    <h3 class="card-title" style="margin-top: 20px;"><i class="fas fa-chart-line"></i> Как это работает?</h3>
+                    <ul class="info">
+                        <li>Приложение использует мощности вашего устройства для майнинга токенов Ruthash</li>
+                        <li>Майнинг происходит в фоновом режиме, не мешая использованию устройства</li>
+                        <li>Все намайненные токены конвертируются в RUTCOIN</li>
+                    </ul>
+                    
+                    <h3 class="card-title" style="margin-top: 20px;"><i class="fas fa-exchange-alt"></i> Конверсия</h3>
+                    <div class="info">
+                        <p>1000 хешей = 0.5 RUTHASH = 0.01 RUTCOIN</p>
+                        <p>Токены RUTHASH будут конвертированы в RUTCOIN после окончания майнинга (07.2025)</p>
+                    </div>
+                    
+                    <h3 class="card-title" style="margin-top: 20px;"><i class="fas fa-bullseye"></i> Наши цели</h3>
+                    <ul class="info">
+                        <li>Создать крупнейшую мобильную майнинг-платформу</li>
+                        <li>Вывести токен RUTCOIN на ведущие криптобиржи</li>
+                        <li>Обеспечить пассивный доход миллионам пользователей</li>
+                    </ul>
+                    
+                    <h3 class="card-title" style="margin-top: 20px;"><i class="fas fa-lightbulb"></i> Советы по майнингу</h3>
+                    <ul class="info">
+                        <li>Подключите телефон к зарядному устройству во время майнинга</li>
+                        <li>Закройте ненужные приложения для увеличения скорости</li>
+                        <li>Используйте улучшения для увеличения доходности</li>
+                        <li>Обновляйте приложение для получения новых функций</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-road"></i> Дорожная карта</div>
+                    <div class="info">
+                        <p><strong>Q3 2024</strong></p>
+                        <ul>
+                            <li>Запуск бета-версии RUTHASH Miner</li>
+                            <li>Привлечение первых 10 000 пользователей</li>
+                            <li>Интеграция с Telegram Stars</li>
+                        </ul>
+                        
+                        <p><strong>Q4 2024</strong></p>
+                        <ul>
+                            <li>Запуск реферальной программы</li>
+                            <li>Добавление новых криптовалют для майнинга</li>
+                            <li>Партнерство с производителями устройств</li>
+                        </ul>
+                        
+                        <p><strong>Q1 2025</strong></p>
+                        <ul>
+                            <li>Запуск десктоп-версии приложения</li>
+                            <li>Листинг RUTHASH на DEX-биржах</li>
+                            <li>Достижение 100 000 активных пользователей</li>
+                        </ul>
+                        
+                        <p><strong>Q2 2025</strong></p>
+                        <ul>
+                            <li>Запуск стейкинга RUTCOIN</li>
+                            <li>Интеграция с кошельками Trust Wallet и MetaMask</li>
+                            <li>Подготовка к листингу на централизованных биржах</li>
+                        </ul>
+                        
+                        <p><strong>Q3 2025</strong></p>
+                        <ul>
+                            <li>Официальный листинг RUTCOIN на биржах</li>
+                            <li>Конвертация RUTHASH в RUTCOIN</li>
+                            <li>Запуск NFT-коллекции для майнеров</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <a href="https://t.me/" class="telegram-btn">
+                    <i class="fab fa-telegram"></i> Наш Telegram-канал
+                </a>
+            </div>
         </div>
         
         <div class="disclaimer">
             ⚠️ Майнинг увеличивает нагрузку на процессор и энергопотребление. 
             Не рекомендуется использовать на старых устройствах длительное время.
         </div>
-        
-        <a href="https://t.me/" class="telegram-btn">
-            <i class="fab fa-telegram"></i> Наш Telegram-канал
-        </a>
+    </div>
+
+    <!-- Навигация -->
+    <div class="nav-container">
+        <button class="nav-btn active" data-tab="upgrades-tab">
+            <i class="fas fa-tools"></i>
+            <span>Улучшения</span>
+        </button>
+        <button class="nav-btn" data-tab="main-tab">
+            <i class="fas fa-home"></i>
+            <span>Главная</span>
+        </button>
+        <button class="nav-btn" data-tab="about-tab">
+            <i class="fas fa-info-circle"></i>
+            <span>О проекте</span>
+        </button>
     </div>
 
     <script>
@@ -638,6 +857,11 @@
                 { id: 1, cost: 5,  bonus: 10,  name: "Улучшение процессора" },
                 { id: 2, cost: 15, bonus: 25,  name: "Улучшение видеокарты" },
                 { id: 3, cost: 30, bonus: 60,  name: "Профессиональная ферма" }
+            ],
+            powerUpgrades: [
+                { id: 1, level: 50, cost: 1000 },
+                { id: 2, level: 75, cost: 2000 },
+                { id: 3, level: 100, cost: 7500 }
             ]
         };
         
@@ -655,17 +879,15 @@
             coins: document.getElementById('coins'),
             rutcoinAmount: document.getElementById('rutcoinAmount'),
             upgradeLevel: document.getElementById('upgradeLevel'),
-            threads: document.getElementById('threads'),
             uptime: document.getElementById('uptime'),
             userId: document.getElementById('userId'),
             miningProgress: document.getElementById('miningProgress'),
-            notification: document.getElementById('notification')
+            notification: document.getElementById('notification'),
+            powerLevel: document.getElementById('powerLevel'),
+            upgradePower1: document.getElementById('upgradePower1'),
+            upgradePower2: document.getElementById('upgradePower2'),
+            upgradePower3: document.getElementById('upgradePower3')
         };
-        
-        // Обновляем стоимость улучшений в интерфейсе
-        document.getElementById('upgrade1Cost').textContent = config.upgrades[0].cost;
-        document.getElementById('upgrade2Cost').textContent = config.upgrades[1].cost;
-        document.getElementById('upgrade3Cost').textContent = config.upgrades[2].cost;
         
         // Состояние приложения
         const state = {
@@ -687,7 +909,9 @@
                 totalRutcoin: 0,
                 totalTime: 0,
                 sessions: 0,
-                upgrades: []
+                upgrades: [],
+                powerLevel: 0,
+                powerUpgrades: []
             },
             activeUpgrades: []
         };
@@ -755,13 +979,17 @@
                     state.activeUpgrades = state.userData.upgrades || [];
                     
                     // Обновляем UI
-                    elements.totalHashes.textContent = state.userData.totalHashes.toLocaleString();
+                    updateDisplayNumbers();
                     elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' RUTHASH';
-                    elements.rutcoinAmount.textContent = state.userData.totalRutcoin.toFixed(4) + ' RUTCOIN';
+                    elements.rutcoinAmount.textContent = (state.userData.totalCoins * 0.02).toFixed(4) + ' RUTCOIN';
                     elements.upgradeLevel.textContent = state.activeUpgrades.length;
+                    elements.powerLevel.textContent = state.userData.powerLevel + '%';
                     
                     // Обновляем бонусы улучшений
                     updateUpgradeBonuses();
+                    
+                    // Обновляем состояние кнопок мощности
+                    updatePowerUpgradeButtons();
                     
                     console.log('Данные загружены:', state.userData);
                 } else {
@@ -771,7 +999,9 @@
                         totalRutcoin: 0,
                         totalTime: 0,
                         sessions: 0,
-                        upgrades: []
+                        upgrades: [],
+                        powerLevel: 0,
+                        powerUpgrades: []
                     };
                     state.userData = {...state.savedData};
                     state.activeUpgrades = [];
@@ -785,11 +1015,28 @@
                     totalRutcoin: 0,
                     totalTime: 0,
                     sessions: 0,
-                    upgrades: []
+                    upgrades: [],
+                    powerLevel: 0,
+                    powerUpgrades: []
                 };
                 state.userData = {...state.savedData};
                 state.activeUpgrades = [];
             }
+        }
+        
+        // Форматирование чисел (1.1M вместо 1100000)
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num;
+        }
+        
+        // Обновление отображаемых чисел
+        function updateDisplayNumbers() {
+            elements.totalHashes.textContent = formatNumber(state.userData.totalHashes + state.sessionHashes);
         }
         
         // Расчет бонуса от улучшений
@@ -813,6 +1060,44 @@
                 state.activeUpgrades.includes(3) ? "60 H/s" : "0 H/s";
             
             return bonus;
+        }
+        
+        // Обновление кнопок улучшения мощности
+        function updatePowerUpgradeButtons() {
+            const powerLevel = state.userData.powerLevel || 0;
+            
+            // Улучшение до 50%
+            if (powerLevel < 50) {
+                elements.upgradePower1.disabled = false;
+                elements.upgradePower1.classList.remove('btn-disabled');
+                elements.upgradePower1.textContent = 'Купить';
+            } else {
+                elements.upgradePower1.disabled = true;
+                elements.upgradePower1.classList.add('btn-disabled');
+                elements.upgradePower1.textContent = 'Куплено';
+            }
+            
+            // Улучшение до 75%
+            if (powerLevel < 75) {
+                elements.upgradePower2.disabled = false;
+                elements.upgradePower2.classList.remove('btn-disabled');
+                elements.upgradePower2.textContent = 'Купить';
+            } else {
+                elements.upgradePower2.disabled = true;
+                elements.upgradePower2.classList.add('btn-disabled');
+                elements.upgradePower2.textContent = 'Куплено';
+            }
+            
+            // Улучшение до 100%
+            if (powerLevel < 100) {
+                elements.upgradePower3.disabled = false;
+                elements.upgradePower3.classList.remove('btn-disabled');
+                elements.upgradePower3.textContent = 'Купить';
+            } else {
+                elements.upgradePower3.disabled = true;
+                elements.upgradePower3.classList.add('btn-disabled');
+                elements.upgradePower3.textContent = 'Куплено';
+            }
         }
         
         // Покупка улучшения
@@ -851,6 +1136,42 @@
             }
         }
         
+        // Покупка улучшения мощности
+        function buyPowerUpgrade(level) {
+            const upgrade = config.powerUpgrades.find(u => u.level === level);
+            if (!upgrade) return;
+            
+            // Проверяем текущий уровень
+            if (state.userData.powerLevel >= level) {
+                showNotification("У вас уже есть этот уровень мощности!");
+                return;
+            }
+            
+            // Проверяем баланс
+            if (state.userData.totalCoins >= upgrade.cost) {
+                // Покупка улучшения
+                state.userData.totalCoins -= upgrade.cost;
+                state.userData.powerLevel = level;
+                state.userData.powerUpgrades.push(upgrade.id);
+                
+                // Обновляем UI
+                elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' RUTHASH';
+                elements.powerLevel.textContent = level + '%';
+                
+                // Обновляем кнопки
+                updatePowerUpgradeButtons();
+                
+                // Показываем уведомление
+                showNotification(`Мощность ${level}% разблокирована!`);
+                
+                // Сохраняем данные
+                saveUserData();
+            } else {
+                // Недостаточно средств
+                showNotification(`Недостаточно RUTHASH. Нужно: ${upgrade.cost}`);
+            }
+        }
+        
         // Покупка звезд (симуляция)
         function buyStars() {
             // В реальном приложении здесь будет вызов Telegram.WebApp.openInvoice
@@ -871,6 +1192,32 @@
             }, 3000);
         }
         
+        // Переключение вкладок
+        function setupTabNavigation() {
+            const tabButtons = document.querySelectorAll('.nav-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.getAttribute('data-tab');
+                    
+                    // Скрыть все вкладки
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Показать выбранную вкладку
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Обновить активную кнопку
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    button.classList.add('active');
+                });
+            });
+        }
+        
         // Инициализация приложения
         function init() {
             initTelegram();
@@ -882,6 +1229,14 @@
             // Кнопки управления
             elements.startBtn.addEventListener('click', startMining);
             elements.stopBtn.addEventListener('click', stopMining);
+            
+            // Кнопки улучшения мощности
+            elements.upgradePower1.addEventListener('click', () => buyPowerUpgrade(50));
+            elements.upgradePower2.addEventListener('click', () => buyPowerUpgrade(75));
+            elements.upgradePower3.addEventListener('click', () => buyPowerUpgrade(100));
+            
+            // Настройка вкладок
+            setupTabNavigation();
             
             // Автосохранение
             setInterval(() => {
@@ -918,7 +1273,7 @@
                 
                 // Обновление элементов
                 elements.currentHashes.textContent = state.hashesPerSecond;
-                elements.totalHashes.textContent = (state.userData.totalHashes + state.sessionHashes).toLocaleString();
+                updateDisplayNumbers();
                 elements.hashRate.textContent = state.hashesPerSecond + ' H/s';
                 
                 // Расчет монет
