@@ -45,7 +45,7 @@
         header {
             text-align: center;
             margin-bottom: 20px;
-            padding: 15px;
+            padding: 15px 15px 30px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 0 0 20px 20px;
             backdrop-filter: blur(10px);
@@ -62,6 +62,7 @@
             justify-content: center;
             gap: 10px;
             margin-bottom: 10px;
+            position: relative;
         }
         
         .logo-icon {
@@ -78,11 +79,12 @@
         }
         
         h1 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             background: linear-gradient(45deg, #6a11cb, #2575fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-top: 5px;
         }
         
         .subtitle {
@@ -93,10 +95,11 @@
         
         .rutcoin-display {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(241, 196, 15, 0.1);
-            padding: 8px 15px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-weight: bold;
             color: var(--gold);
@@ -104,6 +107,8 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            font-size: 0.9rem;
+            white-space: nowrap;
         }
         
         .dashboard {
@@ -191,7 +196,7 @@
         }
         
         .hashes {
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: bold;
             color: var(--accent);
             text-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
@@ -200,7 +205,7 @@
         }
         
         .coins {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: bold;
             color: var(--gold);
             margin: 10px 0;
@@ -490,15 +495,15 @@
             align-items: center;
             justify-content: center;
             gap: 5px;
-            padding: 8px 15px;
+            padding: 8px 5px;
             border-radius: 15px;
             background: transparent;
             border: none;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 25%;
+            width: 20%;
         }
         
         .nav-btn.active {
@@ -507,7 +512,7 @@
         }
         
         .nav-btn i {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
         
         .power-level {
@@ -603,22 +608,88 @@
             margin-top: 5px;
         }
         
+        .leaderboard-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .leaderboard-placeholder i {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        .mining-level {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        .mining-level span {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--gold);
+            margin: 0 10px;
+        }
+        
+        .mining-level-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mining-level-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .mining-level-btn:not(.disabled):hover {
+            background: rgba(106, 17, 203, 0.3);
+            transform: scale(1.1);
+        }
+        
         @media (max-width: 600px) {
             .stats {
                 grid-template-columns: 1fr;
             }
             
             .hashes {
-                font-size: 2.5rem;
+                font-size: 2.2rem;
             }
             
             .coins {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
             }
             
             .nav-btn {
-                padding: 8px 5px;
-                font-size: 0.7rem;
+                padding: 5px 2px;
+                font-size: 0.65rem;
+            }
+            
+            .nav-btn i {
+                font-size: 0.9rem;
+            }
+            
+            h1 {
+                font-size: 1.4rem;
+            }
+            
+            .rutcoin-display {
+                font-size: 0.8rem;
+                padding: 4px 10px;
             }
         }
     </style>
@@ -628,78 +699,16 @@
     
     <div class="container">
         <header>
-            <div class="rutcoin-display">
-                <i class="fas fa-coins"></i>
-                <span id="rutcoinAmount">0.0000 RUTCOIN</span>
-            </div>
-            
             <div class="logo">
                 <div class="logo-icon pulse">R</div>
                 <h1>RUTHASH MINER</h1>
             </div>
+            <div class="rutcoin-display">
+                <i class="fas fa-coins"></i>
+                <span id="rutcoinAmount">0.000 RUTCOIN</span>
+            </div>
             <div class="user-id" id="userId">ID: загрузка...</div>
         </header>
-        
-        <!-- Главная вкладка -->
-        <div id="main-tab" class="tab-content active">
-            <div class="dashboard">
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-coins"></i> Ваш баланс</div>
-                    <div class="mining-area">
-                        <div class="hashes" id="hashRate">0 H/s</div>
-                        <div class="conversion">Конверсия: 1000 хешей = 0.35 RUTHASH = 0.007 RUTCOIN</div>
-                        <div class="coins" id="coins">0.0000 RUTHASH</div>
-                        <div class="progress-container">
-                            <div class="progress-bar" id="miningProgress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-chart-line"></i> Статистика</div>
-                    <div class="stats">
-                        <div class="stat-item">
-                            <h3>Хешей в секунду</h3>
-                            <div class="stat-value" id="currentHashes">0</div>
-                        </div>
-                        <div class="stat-item">
-                            <h3>Всего хешей</h3>
-                            <div class="stat-value format-number" id="totalHashes">0</div>
-                        </div>
-                        <div class="stat-item">
-                            <h3>Уровень улучшений</h3>
-                            <div class="stat-value" id="upgradeLevel">0</div>
-                        </div>
-                        <div class="stat-item">
-                            <h3>Время работы</h3>
-                            <div class="stat-value" id="uptime">00:00:00</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-title"><i class="fas fa-cogs"></i> Управление майнингом</div>
-                    <div class="controls">
-                        <div class="slider-container">
-                            <div class="slider-label">
-                                <span>Мощность:</span>
-                                <span id="cpuPercent">50%</span>
-                            </div>
-                            <input type="range" min="1" max="100" value="50" id="cpuSlider">
-                        </div>
-                        
-                        <div class="btn-group">
-                            <button class="btn" id="startBtn">
-                                <i class="fas fa-play"></i> Старт
-                            </button>
-                            <button class="btn btn-stop" id="stopBtn" disabled>
-                                <i class="fas fa-stop"></i> Стоп
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         
         <!-- Вкладка улучшений -->
         <div id="upgrades-tab" class="tab-content">
@@ -752,55 +761,111 @@
                 </div>
                 
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-microchip"></i> Улучшения майнинга</div>
+                    <div class="card-title"><i class="fas fa-rocket"></i> Улучшения майнинга</div>
                     <div class="upgrade-container">
                         <div class="upgrade-item">
+                            <div class="mining-level">
+                                <div class="mining-level-btn" id="levelDownBtn">-</div>
+                                <span id="miningLevel">1</span>
+                                <div class="mining-level-btn" id="levelUpBtn">+</div>
+                            </div>
+                            
                             <div class="upgrade-header">
-                                <div class="upgrade-title">Базовое улучшение</div>
+                                <div class="upgrade-title">Бонус к хешрейту</div>
                                 <div class="upgrade-cost">
-                                    <i class="fas fa-star"></i> <span>10</span>
+                                    <i class="fas fa-coins"></i> <span id="levelCost">5</span>
                                 </div>
                             </div>
-                            <div class="upgrade-description">Увеличивает скорость майнинга на 20 H/s</div>
+                            
+                            <div class="upgrade-description">
+                                <div id="levelBonus">+50% к скорости майнинга</div>
+                            </div>
+                            
+                            <button class="btn btn-upgrade" id="buyLevelBtn">Купить уровень</button>
+                            
+                            <div class="progress-container">
+                                <div class="progress-bar" id="levelProgress" style="width: 10%"></div>
+                            </div>
                             <div class="upgrade-benefit">
-                                <span>Текущий бонус: <span id="upgrade1Bonus">0 H/s</span></span>
-                                <button class="btn btn-upgrade" onclick="buyUpgrade(1)">Купить</button>
-                            </div>
-                        </div>
-                        
-                        <div class="upgrade-item">
-                            <div class="upgrade-header">
-                                <div class="upgrade-title">Продвинутое улучшение</div>
-                                <div class="upgrade-cost">
-                                    <i class="fas fa-star"></i> <span>25</span>
-                                </div>
-                            </div>
-                            <div class="upgrade-description">Увеличивает скорость майнинга на 50 H/s</div>
-                            <div class="upgrade-benefit">
-                                <span>Текущий бонус: <span id="upgrade2Bonus">0 H/s</span></span>
-                                <button class="btn btn-upgrade" onclick="buyUpgrade(2)">Купить</button>
-                            </div>
-                        </div>
-                        
-                        <div class="upgrade-item">
-                            <div class="upgrade-header">
-                                <div class="upgrade-title">Профессиональное улучшение</div>
-                                <div class="upgrade-cost">
-                                    <i class="fas fa-star"></i> <span>50</span>
-                                </div>
-                            </div>
-                            <div class="upgrade-description">Увеличивает скорость майнинга на 100 H/s</div>
-                            <div class="upgrade-benefit">
-                                <span>Текущий бонус: <span id="upgrade3Bonus">0 H/s</span></span>
-                                <button class="btn btn-upgrade" onclick="buyUpgrade(3)">Купить</button>
+                                <span>Прогресс: <span id="levelProgressText">1/10</span></span>
                             </div>
                         </div>
                     </div>
-                    <div class="stars-currency">
-                        <i class="fas fa-info-circle"></i> 1 RUTHASH = 5 звёзд. Не хватает звёзд? 
-                        <button class="btn btn-buy" onclick="buyStars()" style="padding: 5px 10px; font-size: 0.8rem; margin-left: 5px;">
-                            Купить звёзды
-                        </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Вкладка таблицы лидеров -->
+        <div id="leaderboard-tab" class="tab-content">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-trophy"></i> Таблица лидеров</div>
+                    <div class="leaderboard-placeholder">
+                        <i class="fas fa-crown"></i>
+                        <h3>Скоро будет доступно!</h3>
+                        <p>Таблица лидеров находится в разработке и появится в ближайшем обновлении</p>
+                        <p>Следите за новостями в нашем Telegram-канале</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Главная вкладка -->
+        <div id="main-tab" class="tab-content active">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-coins"></i> Ваш баланс</div>
+                    <div class="mining-area">
+                        <div class="hashes" id="hashRate">0 H/s</div>
+                        <div class="conversion">Конверсия: 1000 хешей = 0.35 RUTHASH = 0.007 RUTCOIN</div>
+                        <div class="coins" id="coins">0.000 RUTHASH</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="miningProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-chart-line"></i> Статистика</div>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <h3>Хешей в секунду</h3>
+                            <div class="stat-value" id="currentHashes">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <h3>Всего хешей</h3>
+                            <div class="stat-value format-number" id="totalHashes">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <h3>Уровень улучшений</h3>
+                            <div class="stat-value" id="upgradeLevel">1</div>
+                        </div>
+                        <div class="stat-item">
+                            <h3>Время работы</h3>
+                            <div class="stat-value" id="uptime">00:00:00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-cogs"></i> Управление майнингом</div>
+                    <div class="controls">
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>Мощность:</span>
+                                <span id="cpuPercent">50%</span>
+                            </div>
+                            <input type="range" min="1" max="100" value="50" id="cpuSlider">
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button class="btn" id="startBtn">
+                                <i class="fas fa-play"></i> Старт
+                            </button>
+                            <button class="btn btn-stop" id="stopBtn" disabled>
+                                <i class="fas fa-stop"></i> Стоп
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -885,6 +950,25 @@
                             <div class="quest-status">
                                 <span id="quest4Status">0/100.0 RUTCOIN</span>
                                 <button class="btn btn-claim" id="quest4Btn" disabled>Получить</button>
+                            </div>
+                        </div>
+                        
+                        <div class="quest-item">
+                            <div class="quest-header">
+                                <div class="quest-title">Легенда майнинга</div>
+                                <div class="quest-reward">
+                                    <i class="fas fa-bolt"></i> +65% к хешрейту
+                                </div>
+                            </div>
+                            <div class="quest-description">
+                                Достигните 150.0 RUTCOIN
+                            </div>
+                            <div class="quest-progress">
+                                <div class="quest-progress-bar" id="quest5Progress" style="width: 0%"></div>
+                            </div>
+                            <div class="quest-status">
+                                <span id="quest5Status">0/150.0 RUTCOIN</span>
+                                <button class="btn btn-claim" id="quest5Btn" disabled>Получить</button>
                             </div>
                         </div>
                     </div>
@@ -989,7 +1073,11 @@
     <div class="nav-container">
         <button class="nav-btn" data-tab="upgrades-tab">
             <i class="fas fa-tools"></i>
-            <span>Улучшения</span>
+            <span>Улучш.</span>
+        </button>
+        <button class="nav-btn" data-tab="leaderboard-tab">
+            <i class="fas fa-trophy"></i>
+            <span>Лидеры</span>
         </button>
         <button class="nav-btn active" data-tab="main-tab">
             <i class="fas fa-home"></i>
@@ -1015,21 +1103,29 @@
             saveInterval: 30000,     // автосохранение каждые 30 секунд
             userId: null,
             baseHashes: 20,         // Базовая скорость майнинга
-            upgrades: [
-                { id: 1, cost: 10,  bonus: 20,  name: "Базовое улучшение" },
-                { id: 2, cost: 25, bonus: 50,  name: "Продвинутое улучшение" },
-                { id: 3, cost: 50, bonus: 100,  name: "Профессиональное улучшение" }
-            ],
             powerUpgrades: [
                 { id: 1, level: 50, cost: 1000 },
                 { id: 2, level: 75, cost: 2000 },
                 { id: 3, level: 100, cost: 7500 }
             ],
+            miningLevels: [
+                { level: 1, bonus: 50, cost: 5 },
+                { level: 2, bonus: 45, cost: 15 },
+                { level: 3, bonus: 40, cost: 30 },
+                { level: 4, bonus: 37.5, cost: 50 },
+                { level: 5, bonus: 35, cost: 75 },
+                { level: 6, bonus: 32.5, cost: 105 },
+                { level: 7, bonus: 30, cost: 140 },
+                { level: 8, bonus: 27.5, cost: 180 },
+                { level: 9, bonus: 25, cost: 225 },
+                { level: 10, bonus: 22.5, cost: 275 }
+            ],
             quests: [
                 { id: 1, target: 1.0, reward: 0.1, bonus: 10, claimed: false },
                 { id: 2, target: 5.0, reward: 0.2, bonus: 20, claimed: false },
                 { id: 3, target: 25.0, reward: 0.35, bonus: 35, claimed: false },
-                { id: 4, target: 100.0, reward: 0.5, bonus: 50, claimed: false }
+                { id: 4, target: 100.0, reward: 0.5, bonus: 50, claimed: false },
+                { id: 5, target: 150.0, reward: 0.65, bonus: 65, claimed: false }
             ]
         };
         
@@ -1052,7 +1148,15 @@
             powerLevel: document.getElementById('powerLevel'),
             upgradePower1: document.getElementById('upgradePower1'),
             upgradePower2: document.getElementById('upgradePower2'),
-            upgradePower3: document.getElementById('upgradePower3')
+            upgradePower3: document.getElementById('upgradePower3'),
+            miningLevel: document.getElementById('miningLevel'),
+            levelCost: document.getElementById('levelCost'),
+            levelBonus: document.getElementById('levelBonus'),
+            levelProgress: document.getElementById('levelProgress'),
+            levelProgressText: document.getElementById('levelProgressText'),
+            buyLevelBtn: document.getElementById('buyLevelBtn'),
+            levelUpBtn: document.getElementById('levelUpBtn'),
+            levelDownBtn: document.getElementById('levelDownBtn')
         };
         
         // Состояние приложения
@@ -1073,13 +1177,13 @@
                 totalRutcoin: 0,
                 totalTime: 0,
                 sessions: 0,
-                upgrades: [],
                 powerLevel: 0,
                 powerUpgrades: [],
+                miningLevel: 1,
                 quests: [],
                 hashBonus: 0
             },
-            activeUpgrades: []
+            currentLevel: 1
         };
         
         // Инициализация Telegram Web App
@@ -1121,7 +1225,6 @@
             state.userData.totalHashes = state.savedData.totalHashes + state.sessionHashes;
             state.userData.totalCoins = state.savedData.totalCoins + (state.sessionHashes * config.conversionRate);
             state.userData.totalRutcoin = state.userData.totalCoins * 0.02; // 1 RUTHASH = 0.02 RUTCOIN
-            state.userData.upgrades = state.activeUpgrades;
             
             try {
                 // Используем localStorage для сохранения
@@ -1142,7 +1245,7 @@
                     state.savedData = JSON.parse(savedData);
                     state.userData = {...state.savedData};
                     state.sessionHashes = 0;
-                    state.activeUpgrades = state.userData.upgrades || [];
+                    state.currentLevel = state.userData.miningLevel || 1;
                     
                     // Инициализируем задания
                     if (!state.userData.quests || state.userData.quests.length === 0) {
@@ -1151,16 +1254,16 @@
                     
                     // Обновляем UI
                     updateDisplayNumbers();
-                    elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' RUTHASH';
-                    elements.rutcoinAmount.textContent = (state.userData.totalCoins * 0.02).toFixed(4) + ' RUTCOIN';
-                    elements.upgradeLevel.textContent = state.activeUpgrades.length;
+                    elements.coins.textContent = state.userData.totalCoins.toFixed(3) + ' RUTHASH';
+                    elements.rutcoinAmount.textContent = (state.userData.totalCoins * 0.02).toFixed(3) + ' RUTCOIN';
+                    elements.upgradeLevel.textContent = state.userData.miningLevel;
                     elements.powerLevel.textContent = state.userData.powerLevel + '%';
-                    
-                    // Обновляем бонусы улучшений
-                    updateUpgradeBonuses();
                     
                     // Обновляем состояние кнопок мощности
                     updatePowerUpgradeButtons();
+                    
+                    // Обновляем уровень майнинга
+                    updateMiningLevel();
                     
                     // Обновляем задания
                     updateQuests();
@@ -1173,14 +1276,14 @@
                         totalRutcoin: 0,
                         totalTime: 0,
                         sessions: 0,
-                        upgrades: [],
                         powerLevel: 0,
                         powerUpgrades: [],
+                        miningLevel: 1,
                         quests: config.quests.map(q => ({...q})),
                         hashBonus: 0
                     };
                     state.userData = {...state.savedData};
-                    state.activeUpgrades = [];
+                    state.currentLevel = 1;
                     console.log('Созданы новые данные пользователя');
                 }
             } catch (e) {
@@ -1191,15 +1294,18 @@
                     totalRutcoin: 0,
                     totalTime: 0,
                     sessions: 0,
-                    upgrades: [],
                     powerLevel: 0,
                     powerUpgrades: [],
+                    miningLevel: 1,
                     quests: config.quests.map(q => ({...q})),
                     hashBonus: 0
                 };
                 state.userData = {...state.savedData};
-                state.activeUpgrades = [];
+                state.currentLevel = 1;
             }
+            
+            // Установка максимальной мощности
+            updateMaxPower();
         }
         
         // Форматирование чисел (1.1M вместо 1100000)
@@ -1215,29 +1321,6 @@
         // Обновление отображаемых чисел
         function updateDisplayNumbers() {
             elements.totalHashes.textContent = formatNumber(state.userData.totalHashes + state.sessionHashes);
-        }
-        
-        // Расчет бонуса от улучшений
-        function calculateUpgradeBonus() {
-            return state.activeUpgrades.reduce((total, upgradeId) => {
-                const upgrade = config.upgrades.find(u => u.id === upgradeId);
-                return total + (upgrade ? upgrade.bonus : 0);
-            }, 0);
-        }
-        
-        // Обновление отображения бонусов улучшений
-        function updateUpgradeBonuses() {
-            const bonus = calculateUpgradeBonus();
-            
-            // Обновляем бонусы в интерфейсе
-            document.getElementById('upgrade1Bonus').textContent = 
-                state.activeUpgrades.includes(1) ? "20 H/s" : "0 H/s";
-            document.getElementById('upgrade2Bonus').textContent = 
-                state.activeUpgrades.includes(2) ? "50 H/s" : "0 H/s";
-            document.getElementById('upgrade3Bonus').textContent = 
-                state.activeUpgrades.includes(3) ? "100 H/s" : "0 H/s";
-            
-            return bonus;
         }
         
         // Обновление кнопок улучшения мощности
@@ -1278,40 +1361,33 @@
             }
         }
         
-        // Покупка улучшения
-        function buyUpgrade(upgradeId) {
-            const upgrade = config.upgrades.find(u => u.id === upgradeId);
-            if (!upgrade) return;
+        // Обновление уровня майнинга
+        function updateMiningLevel() {
+            elements.miningLevel.textContent = state.currentLevel;
             
-            // Проверяем, есть ли уже это улучшение
-            if (state.activeUpgrades.includes(upgradeId)) {
-                showNotification("У вас уже есть это улучшение!");
-                return;
+            const levelInfo = config.miningLevels[state.currentLevel - 1];
+            if (levelInfo) {
+                elements.levelCost.textContent = levelInfo.cost;
+                elements.levelBonus.textContent = `+${levelInfo.bonus}% к скорости майнинга`;
+                
+                // Прогресс уровня
+                const progress = (state.currentLevel / 10) * 100;
+                elements.levelProgress.style.width = `${progress}%`;
+                elements.levelProgressText.textContent = `${state.currentLevel}/10`;
+                
+                // Проверяем, можно ли купить следующий уровень
+                if (state.userData.totalRutcoin >= levelInfo.cost && state.currentLevel < 10) {
+                    elements.buyLevelBtn.disabled = false;
+                    elements.buyLevelBtn.classList.remove('btn-disabled');
+                } else {
+                    elements.buyLevelBtn.disabled = true;
+                    elements.buyLevelBtn.classList.add('btn-disabled');
+                }
             }
             
-            // Проверяем баланс
-            const starsNeeded = upgrade.cost;
-            const coinsNeeded = starsNeeded / 5; // 1 RUTHASH = 5 звёзд
-            
-            if (state.userData.totalCoins >= coinsNeeded) {
-                // Покупка за RUTHASH
-                state.userData.totalCoins -= coinsNeeded;
-                state.activeUpgrades.push(upgradeId);
-                
-                // Обновляем UI
-                updateUpgradeBonuses();
-                elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' RUTHASH';
-                elements.upgradeLevel.textContent = state.activeUpgrades.length;
-                
-                // Показываем уведомление
-                showNotification(`Улучшение "${upgrade.name}" куплено!`);
-                
-                // Сохраняем данные
-                saveUserData();
-            } else {
-                // Недостаточно средств
-                showNotification(`Недостаточно RUTHASH. Нужно: ${coinsNeeded.toFixed(2)}`);
-            }
+            // Обновляем кнопки выбора уровня
+            elements.levelUpBtn.classList.toggle('disabled', state.currentLevel >= 10);
+            elements.levelDownBtn.classList.toggle('disabled', state.currentLevel <= 1);
         }
         
         // Покупка улучшения мощности
@@ -1333,11 +1409,14 @@
                 state.userData.powerUpgrades.push(upgrade.id);
                 
                 // Обновляем UI
-                elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' RUTHASH';
+                elements.coins.textContent = state.userData.totalCoins.toFixed(3) + ' RUTHASH';
                 elements.powerLevel.textContent = level + '%';
                 
                 // Обновляем кнопки
                 updatePowerUpgradeButtons();
+                
+                // Устанавливаем максимальную мощность
+                updateMaxPower();
                 
                 // Показываем уведомление
                 showNotification(`Мощность ${level}% разблокирована!`);
@@ -1347,6 +1426,32 @@
             } else {
                 // Недостаточно средств
                 showNotification(`Недостаточно RUTHASH. Нужно: ${upgrade.cost}`);
+            }
+        }
+        
+        // Покупка уровня майнинга
+        function buyMiningLevel() {
+            const levelInfo = config.miningLevels[state.currentLevel - 1];
+            if (!levelInfo) return;
+            
+            // Проверяем баланс
+            if (state.userData.totalRutcoin >= levelInfo.cost) {
+                // Покупка уровня
+                state.userData.totalRutcoin -= levelInfo.cost;
+                state.userData.miningLevel = state.currentLevel;
+                
+                // Обновляем UI
+                elements.rutcoinAmount.textContent = state.userData.totalRutcoin.toFixed(3) + ' RUTCOIN';
+                updateMiningLevel();
+                
+                // Показываем уведомление
+                showNotification(`Уровень ${state.currentLevel} куплен! Бонус +${levelInfo.bonus}%`);
+                
+                // Сохраняем данные
+                saveUserData();
+            } else {
+                // Недостаточно средств
+                showNotification(`Недостаточно RUTCOIN. Нужно: ${levelInfo.cost}`);
             }
         }
         
@@ -1361,7 +1466,7 @@
                 const claimBtn = document.getElementById(`quest${quest.id}Btn`);
                 
                 if (progressBar) progressBar.style.width = `${progress}%`;
-                if (status) status.textContent = `${rutcoinBalance.toFixed(2)}/${quest.target} RUTCOIN`;
+                if (status) status.textContent = `${rutcoinBalance.toFixed(1)}/${quest.target} RUTCOIN`;
                 
                 // Проверяем, выполнено ли задание
                 if (!quest.claimed && rutcoinBalance >= quest.target) {
@@ -1394,17 +1499,6 @@
             showNotification(`Бонус +${quest.bonus}% к хешрейту получен!`);
             
             // Сохраняем данные
-            saveUserData();
-        }
-        
-        // Покупка звезд (симуляция)
-        function buyStars() {
-            // В реальном приложении здесь будет вызов Telegram.WebApp.openInvoice
-            // Для демонстрации просто добавляем 5 RUTHASH
-            state.userData.totalCoins += 5;
-            elements.coins.textContent = state.userData.totalCoins.toFixed(4) + ' RUTHASH';
-            
-            showNotification("Куплено 25 звёзд (5 RUTHASH)!");
             saveUserData();
         }
         
@@ -1443,6 +1537,15 @@
             });
         }
         
+        // Обновление максимальной мощности
+        function updateMaxPower() {
+            elements.cpuSlider.max = state.userData.powerLevel || 50;
+            if (parseInt(elements.cpuSlider.value) > parseInt(elements.cpuSlider.max)) {
+                elements.cpuSlider.value = elements.cpuSlider.max;
+                updateCpuThrottle();
+            }
+        }
+        
         // Инициализация приложения
         function init() {
             initTelegram();
@@ -1459,11 +1562,29 @@
             elements.upgradePower2.addEventListener('click', () => buyPowerUpgrade(75));
             elements.upgradePower3.addEventListener('click', () => buyPowerUpgrade(100));
             
+            // Кнопки уровня майнинга
+            elements.levelUpBtn.addEventListener('click', () => {
+                if (state.currentLevel < 10) {
+                    state.currentLevel++;
+                    updateMiningLevel();
+                }
+            });
+            
+            elements.levelDownBtn.addEventListener('click', () => {
+                if (state.currentLevel > 1) {
+                    state.currentLevel--;
+                    updateMiningLevel();
+                }
+            });
+            
+            elements.buyLevelBtn.addEventListener('click', buyMiningLevel);
+            
             // Кнопки заданий
             document.getElementById('quest1Btn').addEventListener('click', () => claimQuest(1));
             document.getElementById('quest2Btn').addEventListener('click', () => claimQuest(2));
             document.getElementById('quest3Btn').addEventListener('click', () => claimQuest(3));
             document.getElementById('quest4Btn').addEventListener('click', () => claimQuest(4));
+            document.getElementById('quest5Btn').addEventListener('click', () => claimQuest(5));
             
             // Настройка вкладок
             setupTabNavigation();
@@ -1488,14 +1609,15 @@
         // Обновление UI
         function updateUI() {
             if (state.mining) {
-                // Расчет бонусов от улучшений
-                const upgradeBonus = calculateUpgradeBonus();
+                // Расчет бонусов от уровня майнинга
+                const levelInfo = config.miningLevels[state.userData.miningLevel - 1] || {bonus: 0};
+                const miningBonus = 1 + (levelInfo.bonus / 100);
                 
                 // Расчет бонуса от заданий
                 const questBonus = 1 + (state.userData.hashBonus / 100);
                 
-                // Расчет скорости майнинга с учетом улучшений и бонусов
-                const baseHashes = (config.baseHashes + upgradeBonus) * questBonus;
+                // Расчет скорости майнинга с учетом бонусов
+                const baseHashes = config.baseHashes * miningBonus * questBonus;
                 state.hashesPerSecond = Math.floor(baseHashes * config.throttle);
                 
                 // Обновляем хеши
@@ -1515,8 +1637,8 @@
                 const totalCoins = (state.userData.totalCoins || 0) + sessionCoins;
                 const totalRutcoin = totalCoins * 0.02; // 1 RUTHASH = 0.02 RUTCOIN
                 
-                elements.coins.textContent = totalCoins.toFixed(4) + ' RUTHASH';
-                elements.rutcoinAmount.textContent = totalRutcoin.toFixed(4) + ' RUTCOIN';
+                elements.coins.textContent = totalCoins.toFixed(3) + ' RUTHASH';
+                elements.rutcoinAmount.textContent = totalRutcoin.toFixed(3) + ' RUTCOIN';
                 
                 // Расчет времени работы
                 if (state.sessionStart) {
