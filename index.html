@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RUTHASH - Telegram Miner</title>
+    <title>RUTHASH - Telegram Miner (DEMO)</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -291,6 +291,10 @@
             background: linear-gradient(45deg, #9b59b6, #8e44ad);
         }
         
+        .btn-danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+        
         .btn-disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -352,6 +356,13 @@
             text-align: center;
             opacity: 0.6;
             margin-top: 10px;
+        }
+        
+        .version {
+            font-size: 0.7rem;
+            text-align: center;
+            opacity: 0.6;
+            margin-top: 3px;
         }
         
         .upgrade-container {
@@ -661,6 +672,24 @@
             transform: scale(1.1);
         }
         
+        .countdown-card {
+            background: rgba(30, 40, 60, 0.6);
+            border-radius: 20px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            margin-bottom: 15px;
+        }
+        
+        .countdown {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--gold);
+            padding: 10px;
+        }
+        
         @media (max-width: 600px) {
             .stats {
                 grid-template-columns: 1fr;
@@ -701,13 +730,14 @@
         <header>
             <div class="logo">
                 <div class="logo-icon pulse">R</div>
-                <h1>RUTHASH MINER</h1>
+                <h1>RUTHASH MINER (DEMO)</h1>
             </div>
             <div class="rutcoin-display">
                 <i class="fas fa-coins"></i>
                 <span id="rutcoinAmount">0.000 RUTCOIN</span>
             </div>
             <div class="user-id" id="userId">ID: загрузка...</div>
+            <div class="version">v1.6</div>
         </header>
         
         <!-- Вкладка улучшений -->
@@ -720,7 +750,7 @@
                             <div class="upgrade-header">
                                 <div class="upgrade-title">Мощность 50%</div>
                                 <div class="upgrade-cost">
-                                    <i class="fas fa-coins"></i> <span>1000</span>
+                                    <i class="fas fa-bolt"></i> <span>1000 RUTHASH</span>
                                 </div>
                             </div>
                             <div class="upgrade-description">Разблокирует мощность процессора до 50%</div>
@@ -734,7 +764,7 @@
                             <div class="upgrade-header">
                                 <div class="upgrade-title">Мощность 75%</div>
                                 <div class="upgrade-cost">
-                                    <i class="fas fa-coins"></i> <span>2000</span>
+                                    <i class="fas fa-bolt"></i> <span>2000 RUTHASH</span>
                                 </div>
                             </div>
                             <div class="upgrade-description">Разблокирует мощность процессора до 75%</div>
@@ -748,7 +778,7 @@
                             <div class="upgrade-header">
                                 <div class="upgrade-title">Мощность 100%</div>
                                 <div class="upgrade-cost">
-                                    <i class="fas fa-coins"></i> <span>7500</span>
+                                    <i class="fas fa-bolt"></i> <span>7500 RUTHASH</span>
                                 </div>
                             </div>
                             <div class="upgrade-description">Разблокирует полную мощность процессора</div>
@@ -813,6 +843,13 @@
         <!-- Главная вкладка -->
         <div id="main-tab" class="tab-content active">
             <div class="dashboard">
+                <div class="countdown-card">
+                    <div class="card-title"><i class="fas fa-rocket"></i> Отсчет до релиза</div>
+                    <div class="countdown">
+                        <div id="countdown-timer">00:00:00:00</div>
+                    </div>
+                </div>
+                
                 <div class="card">
                     <div class="card-title"><i class="fas fa-coins"></i> Ваш баланс</div>
                     <div class="mining-area">
@@ -822,6 +859,9 @@
                         <div class="progress-container">
                             <div class="progress-bar" id="miningProgress" style="width: 0%"></div>
                         </div>
+                        <button class="btn btn-danger" id="resetBtn" style="margin-top: 15px;">
+                            <i class="fas fa-trash"></i> Сбросить статистику
+                        </button>
                     </div>
                 </div>
                 
@@ -1057,7 +1097,7 @@
                     </div>
                 </div>
                 
-                <a href="https://t.me/" class="telegram-btn">
+                <a href="https://t.me/RUTHASH_o" class="telegram-btn">
                     <i class="fab fa-telegram"></i> Наш Telegram-канал
                 </a>
             </div>
@@ -1102,7 +1142,7 @@
             rutcoinRate: 0.000007,   // 1000 хешей = 0.007 RUTCOIN
             saveInterval: 30000,     // автосохранение каждые 30 секунд
             userId: null,
-            baseHashes: 20,         // Базовая скорость майнинга
+            baseHashes: 100,        // Увеличена базовая скорость майнинга
             powerUpgrades: [
                 { id: 1, level: 50, cost: 1000 },
                 { id: 2, level: 75, cost: 2000 },
@@ -1126,7 +1166,8 @@
                 { id: 3, target: 25.0, reward: 0.35, bonus: 35, claimed: false },
                 { id: 4, target: 100.0, reward: 0.5, bonus: 50, claimed: false },
                 { id: 5, target: 150.0, reward: 0.65, bonus: 65, claimed: false }
-            ]
+            ],
+            releaseDate: new Date('2025-06-09T00:00:00Z') // Дата релиза
         };
         
         // Элементы DOM
@@ -1156,7 +1197,9 @@
             levelProgressText: document.getElementById('levelProgressText'),
             buyLevelBtn: document.getElementById('buyLevelBtn'),
             levelUpBtn: document.getElementById('levelUpBtn'),
-            levelDownBtn: document.getElementById('levelDownBtn')
+            levelDownBtn: document.getElementById('levelDownBtn'),
+            resetBtn: document.getElementById('resetBtn'),
+            countdownTimer: document.getElementById('countdown-timer')
         };
         
         // Состояние приложения
@@ -1183,7 +1226,8 @@
                 quests: [],
                 hashBonus: 0
             },
-            currentLevel: 1
+            currentLevel: 1,
+            accumulatedHashes: 0 // Для плавного прогресс-бара
         };
         
         // Инициализация Telegram Web App
@@ -1223,7 +1267,7 @@
             }
             
             state.userData.totalHashes = state.savedData.totalHashes + state.sessionHashes;
-            state.userData.totalCoins = state.savedData.totalCoins + (state.sessionHashes * config.conversionRate);
+            state.userData.totalCoins = (state.savedData.totalCoins || 0) + (state.sessionHashes * config.conversionRate);
             state.userData.totalRutcoin = state.userData.totalCoins * 0.02; // 1 RUTHASH = 0.02 RUTCOIN
             
             try {
@@ -1493,7 +1537,7 @@
             quest.claimed = true;
             
             // Обновляем UI
-            updateQuests();
+                updateQuests();
             
             // Показываем уведомление
             showNotification(`Бонус +${quest.bonus}% к хешрейту получен!`);
@@ -1546,6 +1590,70 @@
             }
         }
         
+        // Сброс статистики
+        function resetStatistics() {
+            if (confirm("Вы уверены, что хотите сбросить всю статистику? Это действие нельзя отменить.")) {
+                stopMining();
+                
+                // Сбрасываем данные
+                state.sessionHashes = 0;
+                state.userData = {
+                    totalHashes: 0,
+                    totalCoins: 0,
+                    totalRutcoin: 0,
+                    totalTime: 0,
+                    sessions: 0,
+                    powerLevel: 0,
+                    powerUpgrades: [],
+                    miningLevel: 1,
+                    quests: config.quests.map(q => ({...q})),
+                    hashBonus: 0
+                };
+                state.currentLevel = 1;
+                state.accumulatedHashes = 0;
+                
+                // Обновляем UI
+                updateDisplayNumbers();
+                elements.coins.textContent = '0.000 RUTHASH';
+                elements.rutcoinAmount.textContent = '0.000 RUTCOIN';
+                elements.upgradeLevel.textContent = '1';
+                elements.powerLevel.textContent = '0%';
+                elements.hashRate.textContent = '0 H/s';
+                elements.currentHashes.textContent = '0';
+                elements.uptime.textContent = '00:00:00';
+                elements.miningProgress.style.width = '0%';
+                
+                updatePowerUpgradeButtons();
+                updateMiningLevel();
+                updateQuests();
+                updateMaxPower();
+                
+                // Сохраняем
+                saveUserData();
+                
+                showNotification("Статистика сброшена!");
+            }
+        }
+        
+        // Обновление таймера релиза
+        function updateCountdown() {
+            const now = new Date();
+            const diff = config.releaseDate - now;
+            
+            if (diff <= 0) {
+                elements.countdownTimer.textContent = "Релиз состоялся!";
+                return;
+            }
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            elements.countdownTimer.textContent = 
+                `${days.toString().padStart(2, '0')}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
         // Инициализация приложения
         function init() {
             initTelegram();
@@ -1586,16 +1694,23 @@
             document.getElementById('quest4Btn').addEventListener('click', () => claimQuest(4));
             document.getElementById('quest5Btn').addEventListener('click', () => claimQuest(5));
             
+            // Кнопка сброса статистики
+            elements.resetBtn.addEventListener('click', resetStatistics);
+            
             // Настройка вкладок
             setupTabNavigation();
             
-            // Автосохранение
+            // Автосохранение и обновление заданий
             setInterval(() => {
                 if (state.mining) {
                     saveUserData();
                     updateQuests();
                 }
-            }, config.saveInterval);
+            }, 5000); // Увеличена частота обновления
+            
+            // Таймер релиза
+            setInterval(updateCountdown, 1000);
+            updateCountdown();
             
             // Сохранение при закрытии
             window.addEventListener('beforeunload', () => {
@@ -1622,10 +1737,16 @@
                 
                 // Обновляем хеши
                 state.sessionHashes += state.hashesPerSecond;
+                state.accumulatedHashes += state.hashesPerSecond;
                 
-                // Обновляем прогресс
-                const progress = Math.min(100, (state.sessionHashes % 1000) / 10);
+                // Обновляем прогресс (для каждых 1000 хешей)
+                const progress = (state.accumulatedHashes % 1000) / 10;
                 elements.miningProgress.style.width = `${progress}%`;
+                
+                // Сбрасываем накопленные хеши при достижении 1000
+                if (state.accumulatedHashes >= 1000) {
+                    state.accumulatedHashes = 0;
+                }
                 
                 // Обновление элементов
                 elements.currentHashes.textContent = state.hashesPerSecond;
