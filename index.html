@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RUTHASH - Telegram Miner (Бета-Релиз v1.7.5)</title>
+    <title>RUTHASH - Telegram Miner (Бета-Релиз v1.7.6)</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -1152,7 +1152,7 @@
 
     <!-- Информация внизу экрана -->
     <div class="footer-info">
-        <div class="footer-left">v1.7.5</div>
+        <div class="footer-left">v1.7.6</div>
         <div class="footer-right" id="userIdFooter">ID: загрузка...</div>
     </div>
 
@@ -1181,7 +1181,7 @@
     </div>
 
     <script>
-        // Конфигурация версии 1.7.5
+        // Конфигурация версии 1.7.6
         const config = {
             throttle: 0.5,
             conversionRate: 0.0003, // 1000 хешей = 0.30 RUTHASH
@@ -1269,7 +1269,8 @@
                 powerUpgrades: [],
                 miningLevel: 1,
                 quests: [],
-                hashBonus: 0
+                hashBonus: 0,
+                totalMiningBonus: 0 // Суммарный бонус от всех уровней
             },
             accumulatedHashes: 0,
             miningSessionEnd: 0,
@@ -1367,7 +1368,8 @@
                         miningLevel: 1,
                         quests: config.quests.map(q => ({...q})),
                         hashBonus: 0,
-                        lastSessionEnd: 0
+                        lastSessionEnd: 0,
+                        totalMiningBonus: 50 // Начальный бонус для 1 уровня
                     };
                     console.log('Созданы новые данные пользователя');
                 }
@@ -1384,7 +1386,8 @@
                     miningLevel: 1,
                     quests: config.quests.map(q => ({...q})),
                     hashBonus: 0,
-                    lastSessionEnd: 0
+                    lastSessionEnd: 0,
+                    totalMiningBonus: 50 // Начальный бонус для 1 уровня
                 };
             }
             
@@ -1396,10 +1399,7 @@
         // Расчет оффлайн-хешей
         function calculateOfflineHashes(offlineTime) {
             // Расчет базовой скорости
-            const levelInfo = config.miningLevels[state.userData.miningLevel - 1] || {bonus: 0};
-            const miningBonus = 1 + (levelInfo.bonus / 100);
-            const questBonus = 1 + (state.userData.hashBonus / 100);
-            const baseHashes = config.baseHashes * miningBonus * questBonus;
+            const baseHashes = config.baseHashes * (1 + (state.userData.totalMiningBonus / 100)) * (1 + (state.userData.hashBonus / 100));
             
             // Расчет скорости с учетом ограничений
             const maxPower = state.userData.powerLevel || 50;
@@ -1466,36 +1466,41 @@
             const currentLevel = state.userData.miningLevel;
             elements.miningLevel.textContent = currentLevel;
             
-            const currentLevelInfo = config.miningLevels[currentLevel - 1];
-            if (currentLevelInfo) {
-                elements.levelBonus.textContent = `+${currentLevelInfo.bonus}% к скорости майнинга`;
+            // Рассчитываем суммарный бонус
+            let totalBonus = 0;
+            for (let i = 0; i < currentLevel; i++) {
+                if (config.miningLevels[i]) {
+                    totalBonus += config.miningLevels[i].bonus;
+                }
+            }
+            
+            elements.levelBonus.textContent = `+${totalBonus}% к скорости майнинга`;
+            
+            // Прогресс уровня
+            const progress = (currentLevel / 10) * 100;
+            elements.levelProgress.style.width = `${progress}%`;
+            elements.levelProgressText.textContent = `${currentLevel}/10`;
+            
+            // Следующий уровень
+            if (currentLevel < 10) {
+                const nextLevelInfo = config.miningLevels[currentLevel];
+                elements.nextLevelCost.textContent = nextLevelInfo.cost;
+                elements.nextLevelBonus.textContent = `+${nextLevelInfo.bonus}%`;
                 
-                // Прогресс уровня
-                const progress = (currentLevel / 10) * 100;
-                elements.levelProgress.style.width = `${progress}%`;
-                elements.levelProgressText.textContent = `${currentLevel}/10`;
-                
-                // Следующий уровень
-                if (currentLevel < 10) {
-                    const nextLevelInfo = config.miningLevels[currentLevel];
-                    elements.nextLevelCost.textContent = nextLevelInfo.cost;
-                    elements.nextLevelBonus.textContent = `+${nextLevelInfo.bonus}%`;
-                    
-                    // Проверяем, можно ли купить следующий уровень
-                    if (state.userData.totalCoins >= nextLevelInfo.cost) {
-                        elements.buyLevelBtn.disabled = false;
-                        elements.buyLevelBtn.classList.remove('btn-disabled');
-                    } else {
-                        elements.buyLevelBtn.disabled = true;
-                        elements.buyLevelBtn.classList.add('btn-disabled');
-                    }
+                // Проверяем, можно ли купить следующий уровень
+                if (state.userData.totalCoins >= nextLevelInfo.cost) {
+                    elements.buyLevelBtn.disabled = false;
+                    elements.buyLevelBtn.classList.remove('btn-disabled');
                 } else {
-                    elements.nextLevelCost.textContent = "Макс";
-                    elements.nextLevelBonus.textContent = "Макс";
                     elements.buyLevelBtn.disabled = true;
                     elements.buyLevelBtn.classList.add('btn-disabled');
-                    elements.buyLevelBtn.textContent = 'Максимальный уровень';
                 }
+            } else {
+                elements.nextLevelCost.textContent = "Макс";
+                elements.nextLevelBonus.textContent = "Макс";
+                elements.buyLevelBtn.disabled = true;
+                elements.buyLevelBtn.classList.add('btn-disabled');
+                elements.buyLevelBtn.textContent = 'Максимальный уровень';
             }
         }
         
@@ -1550,6 +1555,9 @@
                 state.userData.totalCoins -= nextLevelInfo.cost;
                 state.userData.miningLevel = currentLevel + 1;
                 
+                // Добавляем бонус этого уровня к общему бонусу
+                state.userData.totalMiningBonus += nextLevelInfo.bonus;
+                
                 // Обновляем UI
                 elements.coins.textContent = state.userData.totalCoins.toFixed(2) + ' RUTHASH';
                 updateMiningLevel();
@@ -1572,7 +1580,18 @@
             const rutcoinBalance = totalCoins * config.rutcoinRate * 1000;
             
             state.userData.quests.forEach(quest => {
-                if (quest.type === 'subscribe') return;
+                if (quest.type === 'subscribe') {
+                    const claimBtn = document.getElementById(`quest${quest.id}Btn`);
+                    if (quest.claimed) {
+                        claimBtn.disabled = true;
+                        claimBtn.classList.add('btn-disabled');
+                        claimBtn.textContent = 'Получено';
+                    } else {
+                        claimBtn.disabled = false;
+                        claimBtn.classList.remove('btn-disabled');
+                    }
+                    return;
+                }
                 
                 const progress = Math.min(100, (rutcoinBalance / quest.target) * 100);
                 const progressBar = document.getElementById(`quest${quest.id}Progress`);
@@ -1704,7 +1723,8 @@
                     miningLevel: 1,
                     quests: config.quests.map(q => ({...q})),
                     hashBonus: 0,
-                    lastSessionEnd: 0
+                    lastSessionEnd: 0,
+                    totalMiningBonus: 50 // Начальный бонус для 1 уровня
                 };
                 state.accumulatedHashes = 0;
                 state.offlineMining = false;
@@ -1813,11 +1833,10 @@
         // Обновление UI
         function updateUI() {
             if (state.mining) {
-                // Расчет бонусов
-                const levelInfo = config.miningLevels[state.userData.miningLevel - 1] || {bonus: 0};
-                const miningBonus = 1 + (levelInfo.bonus / 100);
-                const questBonus = 1 + (state.userData.hashBonus / 100);
-                const baseHashes = config.baseHashes * miningBonus * questBonus;
+                // Расчет базовой скорости с учетом всех бонусов
+                const baseHashes = config.baseHashes * 
+                                 (1 + (state.userData.totalMiningBonus / 100)) * 
+                                 (1 + (state.userData.hashBonus / 100));
                 
                 // Расчет скорости с учетом ограничений
                 const maxPower = state.userData.powerLevel || 50;
