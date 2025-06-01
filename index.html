@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RUTHASH - Telegram Miner (Бета-Релиз v1.7.6)</title>
+    <title>RUTHASH - Telegram Miner (Бета-Релиз v1.8.0)</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -718,6 +718,45 @@
             text-align: right;
         }
         
+        .rewards-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .rewards-tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .rewards-tab-btn.active {
+            background: rgba(155, 89, 182, 0.3);
+            color: white;
+        }
+        
+        .rewards-content {
+            display: none;
+        }
+        
+        .rewards-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .daily-timer {
+            font-size: 0.8rem;
+            color: #3498db;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
         @media (max-width: 600px) {
             .stats {
                 grid-template-columns: 1fr;
@@ -804,6 +843,20 @@
                                 <button class="btn btn-upgrade" id="upgradePower3">Купить</button>
                             </div>
                         </div>
+                        
+                        <div class="upgrade-item">
+                            <div class="upgrade-header">
+                                <div class="upgrade-title">Мощность 125%</div>
+                                <div class="upgrade-cost">
+                                    <i class="fas fa-bolt"></i> <span>15000 RUTHASH</span>
+                                </div>
+                            </div>
+                            <div class="upgrade-description">Разблокирует экстремальную мощность процессора</div>
+                            <div class="power-level">
+                                <span>Текущий уровень: <span class="current-power-level">50%</span></span>
+                                <button class="btn btn-upgrade" id="upgradePower4">Купить</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -830,7 +883,7 @@
                                 <div class="progress-bar" id="levelProgress" style="width: 10%"></div>
                             </div>
                             <div class="upgrade-benefit">
-                                <span>Прогресс: <span id="levelProgressText">1/10</span></span>
+                                <span>Прогресс: <span id="levelProgressText">1/15</span></span>
                             </div>
                         </div>
                     </div>
@@ -846,7 +899,8 @@
                     <div class="leaderboard-placeholder">
                         <i class="fas fa-crown"></i>
                         <h3>Скоро будет доступно!</h3>
-                        <p>Таблица лидеров находится в разработке и появится в ближайшем обновлении</p>
+                        <p>Таблица лидеров находится в разработке и появится в следующем обновлении</p>
+                        <p>Мы используем Telegram API для создания рейтинга пользователей</p>
                         <p>Следите за новостями в нашем Telegram-канале</p>
                     </div>
                 </div>
@@ -867,7 +921,7 @@
                     <div class="card-title"><i class="fas fa-coins"></i> Ваш баланс</div>
                     <div class="mining-area">
                         <div class="hashes" id="hashRate">0 H/s</div>
-                        <div class="conversion">Конверсия: 1000 хешей = 0.30 RUTHASH = 0.006 $RUT</div>
+                        <div class="conversion">Конверсия: 1000 хешей = 0.325 RUTHASH = 0.0085 $RUT</div>
                         <div class="coins" id="coins">0.00 RUTHASH</div>
                         <div class="progress-container">
                             <div class="progress-bar" id="miningProgress" style="width: 0%"></div>
@@ -931,121 +985,201 @@
             </div>
         </div>
         
-        <!-- Вкладка заданий -->
-        <div id="quests-tab" class="tab-content">
+        <!-- Вкладка наград -->
+        <div id="rewards-tab" class="tab-content">
             <div class="dashboard">
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-tasks"></i> Задания на бонусы</div>
-                    <div class="quest-container">
-                        <div class="quest-item">
-                            <div class="quest-header">
-                                <div class="quest-title">Подписка на канал</div>
-                                <div class="quest-reward">
-                                    <i class="fas fa-bolt"></i> +150 RUTHASH
+                    <div class="card-title"><i class="fas fa-tasks"></i> Награды</div>
+                    
+                    <div class="rewards-tabs">
+                        <button class="rewards-tab-btn active" data-content="achievements-content">Достижения</button>
+                        <button class="rewards-tab-btn" data-content="quests-content">Задания</button>
+                    </div>
+                    
+                    <!-- Контент достижений -->
+                    <div id="achievements-content" class="rewards-content active">
+                        <div class="quest-container">
+                            <div class="quest-item">
+                                <div class="quest-header">
+                                    <div class="quest-title">Первые шаги</div>
+                                    <div class="quest-reward">
+                                        <i class="fas fa-bolt"></i> +10% к хешрейту
+                                    </div>
+                                </div>
+                                <div class="quest-description">
+                                    Достигните 0.1 $RUT
+                                </div>
+                                <div class="quest-progress">
+                                    <div class="quest-progress-bar" id="quest1Progress" style="width: 0%"></div>
+                                </div>
+                                <div class="quest-status">
+                                    <span id="quest1Status">0/0.1 $RUT</span>
+                                    <button class="btn btn-claim" id="quest1Btn" disabled>Получить</button>
                                 </div>
                             </div>
-                            <div class="quest-description">
-                                Подпишитесь на наш Telegram-канал
-                            </div>
-                            <div class="quest-status">
-                                <button class="btn btn-claim" id="quest0Btn">Подписаться и получить</button>
-                            </div>
-                        </div>
-                        
-                        <div class="quest-item">
-                            <div class="quest-header">
-                                <div class="quest-title">Первые шаги</div>
-                                <div class="quest-reward">
-                                    <i class="fas fa-bolt"></i> +10% к хешрейту
+                            
+                            <div class="quest-item">
+                                <div class="quest-header">
+                                    <div class="quest-title">Начинающий майнер</div>
+                                    <div class="quest-reward">
+                                        <i class="fas fa-bolt"></i> +20% к хешрейту
+                                    </div>
+                                </div>
+                                <div class="quest-description">
+                                    Достигните 0.5 $RUT
+                                </div>
+                                <div class="quest-progress">
+                                    <div class="quest-progress-bar" id="quest2Progress" style="width: 0%"></div>
+                                </div>
+                                <div class="quest-status">
+                                    <span id="quest2Status">0/0.5 $RUT</span>
+                                    <button class="btn btn-claim" id="quest2Btn" disabled>Получить</button>
                                 </div>
                             </div>
-                            <div class="quest-description">
-                                Достигните 0.1 $RUT
-                            </div>
-                            <div class="quest-progress">
-                                <div class="quest-progress-bar" id="quest1Progress" style="width: 0%"></div>
-                            </div>
-                            <div class="quest-status">
-                                <span id="quest1Status">0/0.1 $RUT</span>
-                                <button class="btn btn-claim" id="quest1Btn" disabled>Получить</button>
-                            </div>
-                        </div>
-                        
-                        <div class="quest-item">
-                            <div class="quest-header">
-                                <div class="quest-title">Начинающий майнер</div>
-                                <div class="quest-reward">
-                                    <i class="fas fa-bolt"></i> +20% к хешрейту
+                            
+                            <div class="quest-item">
+                                <div class="quest-header">
+                                    <div class="quest-title">Опытный майнер</div>
+                                    <div class="quest-reward">
+                                        <i class="fas fa-bolt"></i> +35% к хешрейту
+                                    </div>
+                                </div>
+                                <div class="quest-description">
+                                    Достигните 2.5 $RUT
+                                </div>
+                                <div class="quest-progress">
+                                    <div class="quest-progress-bar" id="quest3Progress" style="width: 0%"></div>
+                                </div>
+                                <div class="quest-status">
+                                    <span id="quest3Status">0/2.5 $RUT</span>
+                                    <button class="btn btn-claim" id="quest3Btn" disabled>Получить</button>
                                 </div>
                             </div>
-                            <div class="quest-description">
-                                Достигните 0.5 $RUT
-                            </div>
-                            <div class="quest-progress">
-                                <div class="quest-progress-bar" id="quest2Progress" style="width: 0%"></div>
-                            </div>
-                            <div class="quest-status">
-                                <span id="quest2Status">0/0.5 $RUT</span>
-                                <button class="btn btn-claim" id="quest2Btn" disabled>Получить</button>
-                            </div>
-                        </div>
-                        
-                        <div class="quest-item">
-                            <div class="quest-header">
-                                <div class="quest-title">Опытный майнер</div>
-                                <div class="quest-reward">
-                                    <i class="fas fa-bolt"></i> +35% к хешрейту
+                            
+                            <div class="quest-item">
+                                <div class="quest-header">
+                                    <div class="quest-title">Мастер майнинга</div>
+                                    <div class="quest-reward">
+                                        <i class="fas fa-bolt"></i> +50% к хешрейту
+                                    </div>
+                                </div>
+                                <div class="quest-description">
+                                    Достигните 10.0 $RUT
+                                </div>
+                                <div class="quest-progress">
+                                    <div class="quest-progress-bar" id="quest4Progress" style="width: 0%"></div>
+                                </div>
+                                <div class="quest-status">
+                                    <span id="quest4Status">0/10.0 $RUT</span>
+                                    <button class="btn btn-claim" id="quest4Btn" disabled>Получить</button>
                                 </div>
                             </div>
-                            <div class="quest-description">
-                                Достигните 2.5 $RUT
-                            </div>
-                            <div class="quest-progress">
-                                <div class="quest-progress-bar" id="quest3Progress" style="width: 0%"></div>
-                            </div>
-                            <div class="quest-status">
-                                <span id="quest3Status">0/2.5 $RUT</span>
-                                <button class="btn btn-claim" id="quest3Btn" disabled>Получить</button>
-                            </div>
-                        </div>
-                        
-                        <div class="quest-item">
-                            <div class="quest-header">
-                                <div class="quest-title">Мастер майнинга</div>
-                                <div class="quest-reward">
-                                    <i class="fas fa-bolt"></i> +50% к хешрейту
+                            
+                            <div class="quest-item">
+                                <div class="quest-header">
+                                    <div class="quest-title">Легенда майнинга</div>
+                                    <div class="quest-reward">
+                                        <i class="fas fa-bolt"></i> +65% к хешрейту
+                                    </div>
+                                </div>
+                                <div class="quest-description">
+                                    Достигните 15.0 $RUT
+                                </div>
+                                <div class="quest-progress">
+                                    <div class="quest-progress-bar" id="quest5Progress" style="width: 0%"></div>
+                                </div>
+                                <div class="quest-status">
+                                    <span id="quest5Status">0/15.0 $RUT</span>
+                                    <button class="btn btn-claim" id="quest5Btn" disabled>Получить</button>
                                 </div>
                             </div>
-                            <div class="quest-description">
-                                Достигните 10.0 $RUT
-                            </div>
-                            <div class="quest-progress">
-                                <div class="quest-progress-bar" id="quest4Progress" style="width: 0%"></div>
-                            </div>
-                            <div class="quest-status">
-                                <span id="quest4Status">0/10.0 $RUT</span>
-                                <button class="btn btn-claim" id="quest4Btn" disabled>Получить</button>
-                            </div>
-                        </div>
-                        
-                        <div class="quest-item">
-                            <div class="quest-header">
-                                <div class="quest-title">Легенда майнинга</div>
-                                <div class="quest-reward">
-                                    <i class="fas fa-bolt"></i> +65% к хешрейту
+                            
+                            <div class="quest-item">
+                                <div class="quest-header">
+                                    <div class="quest-title">Бог майнинга</div>
+                                    <div class="quest-reward">
+                                        <i class="fas fa-bolt"></i> +80% к хешрейту
+                                    </div>
+                                </div>
+                                <div class="quest-description">
+                                    Достигните 50.0 $RUT
+                                </div>
+                                <div class="quest-progress">
+                                    <div class="quest-progress-bar" id="quest6Progress" style="width: 0%"></div>
+                                </div>
+                                <div class="quest-status">
+                                    <span id="quest6Status">0/50.0 $RUT</span>
+                                    <button class="btn btn-claim" id="quest6Btn" disabled>Получить</button>
                                 </div>
                             </div>
-                            <div class="quest-description">
-                                Достигните 15.0 $RUT
+                        </div>
+                    </div>
+                    
+                    <!-- Контент заданий -->
+                    <div id="quests-content" class="rewards-content">
+                        <div class="quest-container">
+                            <div class="quest-item">
+                                <div class="quest-header">
+                                    <div class="quest-title">Подписка на канал</div>
+                                    <div class="quest-reward">
+                                        <i class="fas fa-coins"></i> +150 RUTHASH
+                                    </div>
+                                </div>
+                                <div class="quest-description">
+                                    Подпишитесь на наш Telegram-канал
+                                </div>
+                                <div class="quest-status">
+                                    <button class="btn btn-claim" id="quest0Btn">Подписаться и получить</button>
+                                </div>
                             </div>
-                            <div class="quest-progress">
-                                <div class="quest-progress-bar" id="quest5Progress" style="width: 0%"></div>
+                            
+                            <div class="quest-item">
+                                <div class="quest-header">
+                                    <div class="quest-title">Лайк последнего поста</div>
+                                    <div class="quest-reward">
+                                        <i class="fas fa-coins"></i> +50 RUTHASH
+                                    </div>
+                                </div>
+                                <div class="quest-description">
+                                    Поставьте лайк на последний пост в нашем канале
+                                </div>
+                                <div class="quest-status">
+                                    <button class="btn btn-claim" id="quest7Btn">Поставить лайк</button>
+                                </div>
                             </div>
-                            <div class="quest-status">
-                                <span id="quest5Status">0/15.0 $RUT</span>
-                                <button class="btn btn-claim" id="quest5Btn" disabled>Получить</button>
+                            
+                            <div class="quest-item">
+                                <div class="quest-header">
+                                    <div class="quest-title">Ежедневный вход</div>
+                                    <div class="quest-reward">
+                                        <i class="fas fa-bolt"></i> +25% к хешрейту
+                                    </div>
+                                </div>
+                                <div class="quest-description">
+                                    Заходите в приложение ежедневно
+                                </div>
+                                <div class="daily-timer" id="dailyTimer">Доступно через: 00:00:00</div>
+                                <div class="quest-status">
+                                    <button class="btn btn-claim" id="quest8Btn">Получить бонус</button>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Вкладка обмена -->
+        <div id="exchange-tab" class="tab-content">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-exchange-alt"></i> Обмен</div>
+                    <div class="leaderboard-placeholder">
+                        <i class="fas fa-cogs"></i>
+                        <h3>Скоро будет доступно!</h3>
+                        <p>Функция обмена токенов появится в следующем обновлении</p>
+                        <p>Вы сможете обменивать RUTHASH на $RUT и другие криптовалюты</p>
+                        <p>Следите за новостями в нашем Telegram-канале</p>
                     </div>
                 </div>
             </div>
@@ -1075,7 +1209,7 @@
                     
                     <h3 class="card-title" style="margin-top: 20px;"><i class="fas fa-exchange-alt"></i> Конверсия</h3>
                     <div class="info">
-                        <p>1000 хешей = 0.30 RUTHASH = 0.006 $RUT</p>
+                        <p>1000 хешей = 0.325 RUTHASH = 0.0085 $RUT</p>
                         <p>Токены RUTHASH будут конвертированы в $RUT после окончания майнинга (07.2025)</p>
                         <p><strong>Важно:</strong> Каждые 15 дней после релиза количество RUTHASH за 1000 хешей будет уменьшаться на 5%</p>
                     </div>
@@ -1152,7 +1286,7 @@
 
     <!-- Информация внизу экрана -->
     <div class="footer-info">
-        <div class="footer-left">v1.7.6</div>
+        <div class="footer-left">v1.8.0</div>
         <div class="footer-right" id="userIdFooter">ID: загрузка...</div>
     </div>
 
@@ -1170,9 +1304,13 @@
             <i class="fas fa-home"></i>
             <span>Главная</span>
         </button>
-        <button class="nav-btn" data-tab="quests-tab">
+        <button class="nav-btn" data-tab="rewards-tab">
             <i class="fas fa-tasks"></i>
-            <span>Задания</span>
+            <span>Награды</span>
+        </button>
+        <button class="nav-btn" data-tab="exchange-tab">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Обмен</span>
         </button>
         <button class="nav-btn" data-tab="about-tab">
             <i class="fas fa-info-circle"></i>
@@ -1181,40 +1319,50 @@
     </div>
 
     <script>
-        // Конфигурация версии 1.7.6
+        // Конфигурация версии 1.8.0
         const config = {
             throttle: 0.5,
-            conversionRate: 0.0003, // 1000 хешей = 0.30 RUTHASH
-            rutcoinRate: 0.000006,   // 1000 хешей = 0.006 $RUT
+            conversionRate: 0.000325, // 1000 хешей = 0.325 RUTHASH
+            rutcoinRate: 0.0000085,   // 1000 хешей = 0.0085 $RUT
             saveInterval: 15000,     // автосохранение каждые 15 секунд
             userId: null,
             baseHashes: 100,
             powerUpgrades: [
-                { id: 1, level: 75, cost: 1800 },  // Улучшение до 75%
-                { id: 2, level: 100, cost: 6750 }  // Улучшение до 100%
+                { id: 1, level: 75, cost: 1800 },   // Улучшение до 75%
+                { id: 2, level: 100, cost: 6750 },   // Улучшение до 100%
+                { id: 3, level: 125, cost: 15000 }   // Улучшение до 125%
             ],
             miningLevels: [
-                { level: 1, bonus: 50, cost: 10 },
-                { level: 2, bonus: 45, cost: 20 },
-                { level: 3, bonus: 40, cost: 35 },
-                { level: 4, bonus: 37.5, cost: 55 },
-                { level: 5, bonus: 35, cost: 80 },
-                { level: 6, bonus: 32.5, cost: 110 },
-                { level: 7, bonus: 30, cost: 145 },
-                { level: 8, bonus: 27.5, cost: 185 },
-                { level: 9, bonus: 25, cost: 230 },
-                { level: 10, bonus: 22.5, cost: 280 }
+                { level: 1, bonus: 50, cost: 15 },    // +50%
+                { level: 2, bonus: 45, cost: 30 },    // +45%
+                { level: 3, bonus: 40, cost: 52.5 },  // +40%
+                { level: 4, bonus: 37.5, cost: 82.5 }, // +37.5%
+                { level: 5, bonus: 35, cost: 120 },   // +35%
+                { level: 6, bonus: 32.5, cost: 165 }, // +32.5%
+                { level: 7, bonus: 30, cost: 217.5 }, // +30%
+                { level: 8, bonus: 27.5, cost: 277.5 }, // +27.5%
+                { level: 9, bonus: 25, cost: 345 },   // +25%
+                { level: 10, bonus: 22.5, cost: 420 }, // +22.5%
+                { level: 11, bonus: 20, cost: 510 },  // +20%
+                { level: 12, bonus: 17.5, cost: 615 }, // +17.5%
+                { level: 13, bonus: 15, cost: 735 },  // +15%
+                { level: 14, bonus: 12.5, cost: 870 }, // +12.5%
+                { level: 15, bonus: 10, cost: 1020 }  // +10%
             ],
             quests: [
                 { id: 0, target: 0, reward: 150, bonus: 0, claimed: false, type: 'subscribe' },
-                { id: 1, target: 0.1, reward: 0.1, bonus: 10, claimed: false },
-                { id: 2, target: 0.5, reward: 0.2, bonus: 20, claimed: false },
-                { id: 3, target: 2.5, reward: 0.35, bonus: 35, claimed: false },
-                { id: 4, target: 10.0, reward: 0.5, bonus: 50, claimed: false },
-                { id: 5, target: 15.0, reward: 0.65, bonus: 65, claimed: false }
+                { id: 1, target: 0.1, reward: 0.1, bonus: 10, claimed: false, type: 'achievement' },
+                { id: 2, target: 0.5, reward: 0.2, bonus: 20, claimed: false, type: 'achievement' },
+                { id: 3, target: 2.5, reward: 0.35, bonus: 35, claimed: false, type: 'achievement' },
+                { id: 4, target: 10.0, reward: 0.5, bonus: 50, claimed: false, type: 'achievement' },
+                { id: 5, target: 15.0, reward: 0.65, bonus: 65, claimed: false, type: 'achievement' },
+                { id: 6, target: 50.0, reward: 0.8, bonus: 80, claimed: false, type: 'achievement' },
+                { id: 7, target: 0, reward: 50, bonus: 0, claimed: false, type: 'like' },
+                { id: 8, target: 0, reward: 0, bonus: 25, claimed: false, type: 'daily' }
             ],
             miningSessionDuration: 3 * 60 * 60 * 1000, // 3 часа в миллисекундах
-            offlineMiningRate: 0.25 // 25% от скорости в оффлайн режиме
+            offlineMiningRate: 0.25, // 25% от скорости в оффлайн режиме
+            dailyBonusDuration: 24 * 60 * 60 * 1000 // 24 часа для ежедневного бонуса
         };
         
         // Элементы DOM
@@ -1235,6 +1383,7 @@
             notification: document.getElementById('notification'),
             upgradePower2: document.getElementById('upgradePower2'),
             upgradePower3: document.getElementById('upgradePower3'),
+            upgradePower4: document.getElementById('upgradePower4'),
             miningLevel: document.getElementById('miningLevel'),
             nextLevelCost: document.getElementById('nextLevelCost'),
             levelBonus: document.getElementById('levelBonus'),
@@ -1244,7 +1393,8 @@
             buyLevelBtn: document.getElementById('buyLevelBtn'),
             resetBtn: document.getElementById('resetBtn'),
             miningTimer: document.getElementById('miningTimer'),
-            maxPower: document.getElementById('maxPower')
+            maxPower: document.getElementById('maxPower'),
+            dailyTimer: document.getElementById('dailyTimer')
         };
         
         // Состояние приложения
@@ -1270,7 +1420,8 @@
                 miningLevel: 1,
                 quests: [],
                 hashBonus: 0,
-                totalMiningBonus: 0 // Суммарный бонус от всех уровней
+                totalMiningBonus: 0, // Суммарный бонус от всех уровней
+                lastDailyBonus: 0
             },
             accumulatedHashes: 0,
             miningSessionEnd: 0,
@@ -1369,7 +1520,8 @@
                         quests: config.quests.map(q => ({...q})),
                         hashBonus: 0,
                         lastSessionEnd: 0,
-                        totalMiningBonus: 50 // Начальный бонус для 1 уровня
+                        totalMiningBonus: 50, // Начальный бонус для 1 уровня
+                        lastDailyBonus: 0
                     };
                     console.log('Созданы новые данные пользователя');
                 }
@@ -1387,7 +1539,8 @@
                     quests: config.quests.map(q => ({...q})),
                     hashBonus: 0,
                     lastSessionEnd: 0,
-                    totalMiningBonus: 50 // Начальный бонус для 1 уровня
+                    totalMiningBonus: 50, // Начальный бонус для 1 уровня
+                    lastDailyBonus: 0
                 };
             }
             
@@ -1459,6 +1612,17 @@
                 elements.upgradePower3.classList.add('btn-disabled');
                 elements.upgradePower3.textContent = 'Куплено';
             }
+            
+            // Улучшение до 125%
+            if (powerLevel < 125) {
+                elements.upgradePower4.disabled = false;
+                elements.upgradePower4.classList.remove('btn-disabled');
+                elements.upgradePower4.textContent = 'Купить';
+            } else {
+                elements.upgradePower4.disabled = true;
+                elements.upgradePower4.classList.add('btn-disabled');
+                elements.upgradePower4.textContent = 'Куплено';
+            }
         }
         
         // Обновление уровня майнинга
@@ -1477,12 +1641,12 @@
             elements.levelBonus.textContent = `+${totalBonus}% к скорости майнинга`;
             
             // Прогресс уровня
-            const progress = (currentLevel / 10) * 100;
+            const progress = (currentLevel / 15) * 100;
             elements.levelProgress.style.width = `${progress}%`;
-            elements.levelProgressText.textContent = `${currentLevel}/10`;
+            elements.levelProgressText.textContent = `${currentLevel}/15`;
             
             // Следующий уровень
-            if (currentLevel < 10) {
+            if (currentLevel < 15) {
                 const nextLevelInfo = config.miningLevels[currentLevel];
                 elements.nextLevelCost.textContent = nextLevelInfo.cost;
                 elements.nextLevelBonus.textContent = `+${nextLevelInfo.bonus}%`;
@@ -1544,7 +1708,7 @@
         // Покупка уровня майнинга
         function buyMiningLevel() {
             const currentLevel = state.userData.miningLevel;
-            if (currentLevel >= 10) return;
+            if (currentLevel >= 15) return;
             
             const nextLevelInfo = config.miningLevels[currentLevel];
             if (!nextLevelInfo) return;
@@ -1580,7 +1744,7 @@
             const rutcoinBalance = totalCoins * config.rutcoinRate * 1000;
             
             state.userData.quests.forEach(quest => {
-                if (quest.type === 'subscribe') {
+                if (quest.type === 'subscribe' || quest.type === 'like') {
                     const claimBtn = document.getElementById(`quest${quest.id}Btn`);
                     if (quest.claimed) {
                         claimBtn.disabled = true;
@@ -1593,6 +1757,38 @@
                     return;
                 }
                 
+                if (quest.type === 'daily') {
+                    const claimBtn = document.getElementById(`quest${quest.id}Btn`);
+                    const dailyTimer = document.getElementById('dailyTimer');
+                    
+                    if (quest.claimed) {
+                        const now = Date.now();
+                        const nextAvailable = state.userData.lastDailyBonus + config.dailyBonusDuration;
+                        
+                        if (now < nextAvailable) {
+                            // Рассчитываем оставшееся время
+                            const remaining = nextAvailable - now;
+                            const hours = Math.floor(remaining / (1000 * 60 * 60));
+                            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+                            
+                            dailyTimer.textContent = `Доступно через: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                            claimBtn.disabled = true;
+                            claimBtn.classList.add('btn-disabled');
+                        } else {
+                            dailyTimer.textContent = "Бонус доступен!";
+                            claimBtn.disabled = false;
+                            claimBtn.classList.remove('btn-disabled');
+                        }
+                    } else {
+                        dailyTimer.textContent = "Бонус доступен!";
+                        claimBtn.disabled = false;
+                        claimBtn.classList.remove('btn-disabled');
+                    }
+                    return;
+                }
+                
+                // Для достижений
                 const progress = Math.min(100, (rutcoinBalance / quest.target) * 100);
                 const progressBar = document.getElementById(`quest${quest.id}Progress`);
                 const status = document.getElementById(`quest${quest.id}Status`);
@@ -1644,7 +1840,51 @@
                 return;
             }
             
-            // Добавляем бонус к хешрейту
+            // Задание на лайк
+            if (quest.type === 'like') {
+                state.userData.totalCoins += quest.reward;
+                quest.claimed = true;
+                
+                // Обновляем UI
+                elements.coins.textContent = state.userData.totalCoins.toFixed(2) + ' RUTHASH';
+                
+                // Показываем уведомление
+                showNotification(`Получено 50 RUTHASH за лайк!`);
+                
+                // Сохраняем данные
+                saveUserData();
+                
+                // Обновляем кнопку
+                const claimBtn = document.getElementById(`quest${questId}Btn`);
+                claimBtn.disabled = true;
+                claimBtn.classList.add('btn-disabled');
+                claimBtn.textContent = 'Получено';
+                
+                return;
+            }
+            
+            // Ежедневный бонус
+            if (quest.type === 'daily') {
+                // Добавляем бонус к хешрейту
+                state.userData.hashBonus += quest.bonus;
+                quest.claimed = true;
+                state.userData.lastDailyBonus = Date.now();
+                
+                // Показываем уведомление
+                showNotification(`Ежедневный бонус +${quest.bonus}% к хешрейту получен!`);
+                
+                // Сохраняем данные
+                saveUserData();
+                
+                // Обновляем кнопку
+                const claimBtn = document.getElementById(`quest${questId}Btn`);
+                claimBtn.disabled = true;
+                claimBtn.classList.add('btn-disabled');
+                
+                return;
+            }
+            
+            // Для достижений: добавляем бонус к хешрейту
             state.userData.hashBonus += quest.bonus;
             quest.claimed = true;
             
@@ -1693,6 +1933,32 @@
             });
         }
         
+        // Переключение вкладок наград
+        function setupRewardsTabs() {
+            const tabButtons = document.querySelectorAll('.rewards-tab-btn');
+            const tabContents = document.querySelectorAll('.rewards-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const contentId = button.getAttribute('data-content');
+                    
+                    // Скрыть все вкладки
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Показать выбранную вкладку
+                    document.getElementById(contentId).classList.add('active');
+                    
+                    // Обновить активную кнопку
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    button.classList.add('active');
+                });
+            });
+        }
+        
         // Обновление максимальной мощности
         function updateMaxPower() {
             const maxPower = state.userData.powerLevel || 50;
@@ -1724,7 +1990,8 @@
                     quests: config.quests.map(q => ({...q})),
                     hashBonus: 0,
                     lastSessionEnd: 0,
-                    totalMiningBonus: 50 // Начальный бонус для 1 уровня
+                    totalMiningBonus: 50, // Начальный бонус для 1 уровня
+                    lastDailyBonus: 0
                 };
                 state.accumulatedHashes = 0;
                 state.offlineMining = false;
@@ -1773,6 +2040,29 @@
                 `Майнинг активен: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
         
+        // Обновление ежедневного таймера
+        function updateDailyTimer() {
+            const quest = state.userData.quests.find(q => q.id === 8);
+            if (!quest) return;
+            
+            if (quest.claimed) {
+                const now = Date.now();
+                const nextAvailable = state.userData.lastDailyBonus + config.dailyBonusDuration;
+                
+                if (now < nextAvailable) {
+                    const remaining = nextAvailable - now;
+                    const hours = Math.floor(remaining / (1000 * 60 * 60));
+                    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+                    
+                    elements.dailyTimer.textContent = 
+                        `Доступно через: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                } else {
+                    elements.dailyTimer.textContent = "Бонус доступен!";
+                }
+            }
+        }
+        
         // Инициализация приложения
         function init() {
             initTelegram();
@@ -1788,6 +2078,7 @@
             // Кнопки улучшения мощности
             elements.upgradePower2.addEventListener('click', () => buyPowerUpgrade(75));
             elements.upgradePower3.addEventListener('click', () => buyPowerUpgrade(100));
+            elements.upgradePower4.addEventListener('click', () => buyPowerUpgrade(125));
             
             // Кнопка уровня майнинга
             elements.buyLevelBtn.addEventListener('click', buyMiningLevel);
@@ -1799,12 +2090,16 @@
             document.getElementById('quest3Btn').addEventListener('click', () => claimQuest(3));
             document.getElementById('quest4Btn').addEventListener('click', () => claimQuest(4));
             document.getElementById('quest5Btn').addEventListener('click', () => claimQuest(5));
+            document.getElementById('quest6Btn').addEventListener('click', () => claimQuest(6));
+            document.getElementById('quest7Btn').addEventListener('click', () => claimQuest(7));
+            document.getElementById('quest8Btn').addEventListener('click', () => claimQuest(8));
             
             // Кнопка сброса статистики
             elements.resetBtn.addEventListener('click', resetStatistics);
             
             // Настройка вкладок
             setupTabNavigation();
+            setupRewardsTabs();
             
             // Автосохранение и обновление заданий каждые 15 секунд
             setInterval(() => {
@@ -1817,6 +2112,9 @@
             
             // Таймер майнинга
             setInterval(updateMiningTimer, 1000);
+            
+            // Таймер ежедневного бонуса
+            setInterval(updateDailyTimer, 1000);
             
             // Сохранение при закрытии
             window.addEventListener('beforeunload', () => {
