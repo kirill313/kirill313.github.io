@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RUTHASH - Telegram Miner (Версия v2.2.1)</title>
+    <title>RUTHASH - Telegram Miner (Версия v2.2.3)</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -337,6 +337,11 @@
         .btn-disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+        
+        .btn-reset {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            margin-top: 20px;
         }
         
         .info {
@@ -1185,8 +1190,45 @@
             font-weight: bold;
         }
         
-        .leaderboard-bonus {
+        .leaderboard-hash {
             font-size: 0.8rem;
+            color: var(--accent);
+        }
+        
+        .user-stats {
+            background: rgba(106, 17, 203, 0.3);
+            border: 1px solid var(--accent);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .user-stats-title {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--gold);
+        }
+        
+        .user-stats-values {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .user-stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .user-stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
             color: var(--accent);
         }
         
@@ -1398,6 +1440,19 @@
             border: 1px solid var(--glass-border);
         }
         
+        .reset-container {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+        
+        .reset-warning {
+            color: var(--danger);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
         @media (max-width: 600px) {
             .stats {
                 grid-template-columns: 1fr;
@@ -1471,6 +1526,11 @@
             .roadmap-dot {
                 margin: 0 auto 10px;
             }
+            
+            .user-stats-values {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -1482,9 +1542,9 @@
     <div class="tutorial-overlay" id="tutorialOverlay">
         <div class="tutorial-card">
             <div class="tutorial-step active" id="tutorialStep1">
-                <div class="tutorial-title">Добро пожаловать в RUTHASH 2.2.1!</div>
+                <div class="tutorial-title">Добро пожаловать в RUTHASH 2.2.3!</div>
                 <div class="tutorial-content">
-                    Улучшенная система майнинга, больше наград и стабильный курс обмена!
+                    Обновленная экономика, улучшенная таблица лидеров и новые награды!
                 </div>
                 <div class="tutorial-progress">Шаг 1 из 3</div>
                 <div class="tutorial-buttons">
@@ -1493,9 +1553,9 @@
             </div>
             
             <div class="tutorial-step" id="tutorialStep2">
-                <div class="tutorial-title">Новые достижения</div>
+                <div class="tutorial-title">Важные изменения</div>
                 <div class="tutorial-content">
-                    Теперь доступны 6 уровней достижений с наградами от 0.5 до 50 $RUT!
+                    Награды за достижения теперь дают бонусы к хешрейту. Стоимость премиум ролла увеличена до 2.5 $RUT.
                 </div>
                 <div class="tutorial-progress">Шаг 2 из 3</div>
                 <div class="tutorial-buttons">
@@ -1505,9 +1565,9 @@
             </div>
             
             <div class="tutorial-step" id="tutorialStep3">
-                <div class="tutorial-title">Экономика проекта</div>
+                <div class="tutorial-title">Таблица лидеров</div>
                 <div class="tutorial-content">
-                    Обмен RUTHASH на $RUT положительно влияет на курс. Чем больше обменов - тем выше курс!
+                    Ваши результаты теперь отображаются отдельно. Увеличена волатильность курса $RUT.
                 </div>
                 <div class="tutorial-progress">Шаг 3 из 3</div>
                 <div class="tutorial-buttons">
@@ -1623,8 +1683,8 @@
                         </button>
                     </div>
                     <div class="roll-info">
-                        <div class="roll-timer" id="premiumRollCost">Стоимость: 1 $RUT</div>
-                        <div class="info">Шанс выиграть от 150 до 2250 RUTHASH!</div>
+                        <div class="roll-timer" id="premiumRollCost">Стоимость: 2.5 $RUT</div>
+                        <div class="info">Шанс выиграть от 120 до 1800 RUTHASH!</div>
                     </div>
                 </div>
             </div>
@@ -1635,6 +1695,21 @@
             <div class="dashboard">
                 <div class="card">
                     <div class="card-title"><i class="fas fa-trophy"></i> Таблица лидеров</div>
+                    
+                    <div class="user-stats">
+                        <div class="user-stats-title">Ваши результаты</div>
+                        <div class="user-stats-values">
+                            <div class="user-stat-item">
+                                <div class="user-stat-label">RUTHASH</div>
+                                <div class="user-stat-value" id="userTotalCoins">0</div>
+                            </div>
+                            <div class="user-stat-item">
+                                <div class="user-stat-label">$RUT</div>
+                                <div class="user-stat-value" id="userTotalRutcoin">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="leaderboard-list" id="leaderboardList">
                         <!-- Leaderboard will be populated by JavaScript -->
                     </div>
@@ -1715,7 +1790,7 @@
                                 <div class="quest-header">
                                     <div class="quest-title">Первые шаги</div>
                                     <div class="quest-reward">
-                                        <i class="fas fa-coins"></i> +100 RUTHASH
+                                        <i class="fas fa-bolt"></i> +5% к хешрейту
                                     </div>
                                 </div>
                                 <div class="quest-description">
@@ -1734,7 +1809,7 @@
                                 <div class="quest-header">
                                     <div class="quest-title">Начинающий майнер</div>
                                     <div class="quest-reward">
-                                        <i class="fas fa-coins"></i> +150 RUTHASH
+                                        <i class="fas fa-bolt"></i> +10% к хешрейту
                                     </div>
                                 </div>
                                 <div class="quest-description">
@@ -1753,7 +1828,7 @@
                                 <div class="quest-header">
                                     <div class="quest-title">Опытный добытчик</div>
                                     <div class="quest-reward">
-                                        <i class="fas fa-coins"></i> +300 RUTHASH
+                                        <i class="fas fa-bolt"></i> +20% к хешрейту
                                     </div>
                                 </div>
                                 <div class="quest-description">
@@ -1772,7 +1847,7 @@
                                 <div class="quest-header">
                                     <div class="quest-title">Профессионал</div>
                                     <div class="quest-reward">
-                                        <i class="fas fa-coins"></i> +500 RUTHASH
+                                        <i class="fas fa-bolt"></i> +35% к хешрейту
                                     </div>
                                 </div>
                                 <div class="quest-description">
@@ -1791,7 +1866,7 @@
                                 <div class="quest-header">
                                     <div class="quest-title">Мастер майнинга</div>
                                     <div class="quest-reward">
-                                        <i class="fas fa-coins"></i> +1000 RUTHASH
+                                        <i class="fas fa-bolt"></i> +50% к хешрейту
                                     </div>
                                 </div>
                                 <div class="quest-description">
@@ -1810,7 +1885,7 @@
                                 <div class="quest-header">
                                     <div class="quest-title">Легенда RUTHASH</div>
                                     <div class="quest-reward">
-                                        <i class="fas fa-coins"></i> +2000 RUTHASH
+                                        <i class="fas fa-bolt"></i> +75% к хешрейту
                                     </div>
                                 </div>
                                 <div class="quest-description">
@@ -1824,6 +1899,25 @@
                                     <button class="btn btn-claim" id="quest6Btn" disabled data-tooltip="Получить бонус">Получить</button>
                                 </div>
                             </div>
+                            
+                            <div class="quest-item">
+                                <div class="quest-header">
+                                    <div class="quest-title">Король крипты</div>
+                                    <div class="quest-reward">
+                                        <i class="fas fa-bolt"></i> +100% к хешрейту
+                                    </div>
+                                </div>
+                                <div class="quest-description">
+                                    Достигните 100.0 $RUT
+                                </div>
+                                <div class="quest-progress">
+                                    <div class="quest-progress-bar" id="quest7Progress" style="width: 0%"></div>
+                                </div>
+                                <div class="quest-status">
+                                    <span id="quest7Status">0/100.0 $RUT</span>
+                                    <button class="btn btn-claim" id="quest7Btn" disabled data-tooltip="Получить бонус">Получить</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -1834,7 +1928,7 @@
                                 <div class="quest-header">
                                     <div class="quest-title">Подписка на канал</div>
                                     <div class="quest-reward">
-                                        <i class="fas fa-coins"></i> +225 RUTHASH
+                                        <i class="fas fa-coins"></i> +100 RUTHASH
                                     </div>
                                 </div>
                                 <div class="quest-description">
@@ -1849,7 +1943,7 @@
                                 <div class="quest-header">
                                     <div class="quest-title">Ежедневный вход</div>
                                     <div class="quest-reward">
-                                        <i class="fas fa-bolt"></i> +25% к хешрейту
+                                        <i class="fas fa-bolt"></i> +12.5% к хешрейту
                                     </div>
                                 </div>
                                 <div class="quest-description">
@@ -1935,32 +2029,22 @@
                         <div class="about-logo">
                             <i class="fas fa-coins"></i>
                         </div>
-                        <h1 class="about-title">RUTHASH 2.2.1</h1>
+                        <h1 class="about-title">RUTHASH 2.2.3</h1>
                         <p class="about-subtitle">Инновационная платформа для заработка криптовалюты</p>
                     </div>
                     
                     <div class="info">
-                        <p>RUTHASH - это передовое приложение для получения криптовалюты прямо в Telegram. С версии 2.2 мы полностью переработали систему майнинга, роллов и экономику проекта.</p>
+                        <p>RUTHASH - это передовое приложение для получения криптовалюты прямо в Telegram. Версия 2.2.3 приносит существенные изменения в экономику проекта и игровой процесс.</p>
                     </div>
                     
                     <div class="feature-grid">
                         <div class="feature-card">
                             <div class="feature-icon">
-                                <i class="fas fa-microchip"></i>
+                                <i class="fas fa-sync-alt"></i>
                             </div>
-                            <div class="feature-title">Улучшенный майнинг</div>
+                            <div class="feature-title">Экономические изменения</div>
                             <div class="feature-description">
-                                Базовая скорость снижена до 30 H/s. Уровни улучшений перебалансированы
-                            </div>
-                        </div>
-                        
-                        <div class="feature-card">
-                            <div class="feature-icon">
-                                <i class="fas fa-dice"></i>
-                            </div>
-                            <div class="feature-title">Читаемые роллы</div>
-                            <div class="feature-description">
-                                Увеличен текст в роллах для лучшей читаемости наград
+                                Стоимость премиум ролла увеличена до 2.5 $RUT. Награды уменьшены на 20% для баланса.
                             </div>
                         </div>
                         
@@ -1968,9 +2052,9 @@
                             <div class="feature-icon">
                                 <i class="fas fa-chart-line"></i>
                             </div>
-                            <div class="feature-title">Экономика проекта</div>
+                            <div class="feature-title">Волатильность курса</div>
                             <div class="feature-description">
-                                Обмен RUTHASH на $RUT положительно влияет на курс
+                                Увеличена волатильность курса $RUT для более динамичной экономики.
                             </div>
                         </div>
                         
@@ -1980,7 +2064,17 @@
                             </div>
                             <div class="feature-title">Новые достижения</div>
                             <div class="feature-description">
-                                Добавлены 6 уровней достижений с наградами
+                                Добавлены бонусы к хешрейту за достижения. Новый уровень за 100 $RUT.
+                            </div>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <div class="feature-title">Таблица лидеров</div>
+                            <div class="feature-description">
+                                Ваши результаты теперь отображаются отдельно. Улучшен дизайн.
                             </div>
                         </div>
                     </div>
@@ -2039,24 +2133,33 @@
                     
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <div class="stat-value" id="totalUsers">25K+</div>
+                            <div class="stat-value" id="totalUsers">35K+</div>
                             <div class="stat-label">Пользователей</div>
                         </div>
                         
                         <div class="stat-card">
-                            <div class="stat-value" id="totalCoinsMined">1.2M</div>
+                            <div class="stat-value" id="totalCoinsMined">2.1M</div>
                             <div class="stat-label">Намайнено RUTHASH</div>
                         </div>
                         
                         <div class="stat-card">
-                            <div class="stat-value" id="totalTransactions">45K</div>
+                            <div class="stat-value" id="totalTransactions">68K</div>
                             <div class="stat-label">Обменов</div>
                         </div>
                         
                         <div class="stat-card">
-                            <div class="stat-value" id="maxReward">2250</div>
+                            <div class="stat-value" id="maxReward">1800</div>
                             <div class="stat-label">Макс. награда</div>
                         </div>
+                    </div>
+                    
+                    <div class="reset-container">
+                        <div class="reset-warning">
+                            ⚠️ Внимание: Сброс статистики удалит все ваши данные без возможности восстановления!
+                        </div>
+                        <button class="btn btn-danger btn-reset" id="resetStatsBtn">
+                            <i class="fas fa-trash-alt"></i> Сбросить статистику
+                        </button>
                     </div>
                     
                     <a href="https://t.me/RUTHASH_o" class="telegram-btn">
@@ -2073,7 +2176,7 @@
 
     <!-- Информация внизу экрана -->
     <div class="footer-info">
-        <div class="footer-left">v2.2.1</div>
+        <div class="footer-left">v2.2.3</div>
         <div class="footer-right" id="userIdFooter">ID: загрузка...</div>
     </div>
 
@@ -2111,11 +2214,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Конфигурация версии 2.2.1
+        // Конфигурация версии 2.2.3
         const config = {
             saveInterval: 15000,
             userId: null,
-            baseHashes: 30, // Уменьшена базовая скорость
+            baseHashes: 30,
             exchangeFee: 0.1, // 10% комиссия
             usdtRate: 0.1, // 1 $RUT = 0.1 USDT
             miningLevels: [
@@ -2155,17 +2258,18 @@
                 { level: 10, bonus: 5.17, cost: 40824 }
             ],
             quests: [
-                { id: 0, target: 0, reward: 225, bonus: 0, claimed: false, type: 'subscribe' },
-                { id: 1, target: 0.5, reward: 100, bonus: 0, claimed: false, type: 'achievement' },
-                { id: 2, target: 1.0, reward: 150, bonus: 0, claimed: false, type: 'achievement' },
-                { id: 3, target: 5.0, reward: 300, bonus: 0, claimed: false, type: 'achievement' },
-                { id: 4, target: 10.0, reward: 500, bonus: 0, claimed: false, type: 'achievement' },
-                { id: 5, target: 25.0, reward: 1000, bonus: 0, claimed: false, type: 'achievement' },
-                { id: 6, target: 50.0, reward: 2000, bonus: 0, claimed: false, type: 'achievement' },
-                { id: 8, target: 0, reward: 0, bonus: 25, claimed: false, type: 'daily' }
+                { id: 0, target: 0, reward: 100, bonus: 0, claimed: false, type: 'subscribe' },
+                { id: 1, target: 0.5, reward: 0, bonus: 5, claimed: false, type: 'achievement' },
+                { id: 2, target: 1.0, reward: 0, bonus: 10, claimed: false, type: 'achievement' },
+                { id: 3, target: 5.0, reward: 0, bonus: 20, claimed: false, type: 'achievement' },
+                { id: 4, target: 10.0, reward: 0, bonus: 35, claimed: false, type: 'achievement' },
+                { id: 5, target: 25.0, reward: 0, bonus: 50, claimed: false, type: 'achievement' },
+                { id: 6, target: 50.0, reward: 0, bonus: 75, claimed: false, type: 'achievement' },
+                { id: 7, target: 100.0, reward: 0, bonus: 100, claimed: false, type: 'achievement' },
+                { id: 8, target: 0, reward: 0, bonus: 12.5, claimed: false, type: 'daily' }
             ],
-            rollPrizes: [1.5, 3.75, 7.5, 15, 22.5, 30, 45, 75],
-            premiumRollPrizes: [150, 300, 450, 600, 750, 900, 1050, 1500],
+            rollPrizes: [1.2, 3.0, 6.0, 12, 18, 24, 36, 60], // Уменьшены на 20%
+            premiumRollPrizes: [120, 240, 360, 480, 600, 720, 840, 1200], // Уменьшены на 20%
             jackpotChance: 0.05,
             rollSpinDuration: 3000,
             rollSpinInterval: 10000,
@@ -2174,7 +2278,8 @@
             minExchangeRate: 0.004,
             maxExchangeRate: 0.015,
             exchangeRateInterval: 10000,
-            exchangeRateGrowthFactor: 0.0001 // Рост курса на 0.0001 за каждые 100 RUTHASH
+            exchangeRateGrowthFactor: 0.0001,
+            exchangeVolatility: 0.25 // Увеличенная волатильность
         };
         
         // Состояние приложения
@@ -2351,6 +2456,7 @@
             
             document.getElementById('rutcoinAmount').textContent = formatNumber(state.userData.totalCoins) + ' RUTHASH';
             document.getElementById('totalCoins').textContent = formatNumber(state.userData.totalCoins);
+            document.getElementById('userTotalCoins').textContent = formatNumber(state.userData.totalCoins);
             
             const rutcoinElement = document.getElementById('totalRutcoin');
             const currentRutcoin = parseFloat(rutcoinElement.textContent) || 0;
@@ -2358,6 +2464,7 @@
                 animateValue(rutcoinElement, currentRutcoin, state.userData.totalRutcoin, 500);
             }
             
+            document.getElementById('userTotalRutcoin').textContent = state.userData.totalRutcoin.toFixed(2);
             document.getElementById('rolls').textContent = state.userData.totalRolls;
             document.getElementById('upgradeLevel').textContent = state.userData.miningLevel;
             
@@ -2380,7 +2487,7 @@
             
             // Обновление кнопки премиум ролла
             const premiumBtn = document.getElementById('premiumSpinButton');
-            if (state.userData.totalRutcoin >= 1) {
+            if (state.userData.totalRutcoin >= 2.5) {
                 premiumBtn.disabled = false;
                 premiumBtn.classList.remove('btn-disabled');
             } else {
@@ -2635,11 +2742,11 @@
                 return;
             }
             
-            state.userData.totalCoins += quest.reward;
+            state.userData.hashBonus += quest.bonus;
             quest.claimed = true;
             updateQuests();
             updateDisplay();
-            showNotification(`Получено ${quest.reward} RUTHASH!`);
+            showNotification(`Получен бонус +${quest.bonus}% к хешрейту!`);
             saveUserData();
         }
         
@@ -2917,12 +3024,12 @@
             if ((isPremium ? state.premiumSpinning : state.spinning)) return;
             
             if (isPremium) {
-                if (state.userData.totalRutcoin < 1) {
+                if (state.userData.totalRutcoin < 2.5) {
                     showNotification("Недостаточно $RUT для премиум ролла!");
                     return;
                 }
                 
-                state.userData.totalRutcoin -= 1;
+                state.userData.totalRutcoin -= 2.5;
                 state.premiumSpinning = true;
             } else {
                 const now = Date.now();
@@ -2996,6 +3103,7 @@
                         id: i,
                         name: names[i],
                         rutcoin: Math.floor(Math.random() * 5000) / 100 + 1,
+                        coins: Math.floor(Math.random() * 10000) + 1000,
                         bonus: i < 3 ? 100 - i * 25 : 0
                     });
                 }
@@ -3032,6 +3140,10 @@
                 value.className = 'leaderboard-value';
                 value.textContent = player.rutcoin.toFixed(2) + ' $RUT';
                 
+                const hash = document.createElement('div');
+                hash.className = 'leaderboard-hash';
+                hash.textContent = formatNumber(player.coins) + ' RUTHASH';
+                
                 const bonus = document.createElement('div');
                 bonus.className = 'leaderboard-bonus';
                 if (index < 3) {
@@ -3042,6 +3154,7 @@
                 
                 info.appendChild(name);
                 info.appendChild(value);
+                info.appendChild(hash);
                 info.appendChild(bonus);
                 
                 item.appendChild(rank);
@@ -3049,43 +3162,6 @@
                 
                 leaderboardList.appendChild(item);
             });
-            
-            // Добавляем текущего пользователя в конец
-            const userItem = document.createElement('div');
-            userItem.className = 'leaderboard-item';
-            userItem.style.background = 'rgba(106, 17, 203, 0.3)';
-            
-            const userRank = document.createElement('div');
-            userRank.className = 'leaderboard-rank';
-            userRank.textContent = state.userData.leaderboardPosition;
-            
-            const userInfo = document.createElement('div');
-            userInfo.className = 'leaderboard-info';
-            
-            const userName = document.createElement('div');
-            userName.className = 'leaderboard-name';
-            userName.textContent = 'Вы';
-            
-            const userValue = document.createElement('div');
-            userValue.className = 'leaderboard-value';
-            userValue.textContent = state.userData.totalRutcoin.toFixed(2) + ' $RUT';
-            
-            const userBonus = document.createElement('div');
-            userBonus.className = 'leaderboard-bonus';
-            if (state.userData.leaderboardPosition <= 3) {
-                userBonus.textContent = `Бонус: +${100 - (state.userData.leaderboardPosition - 1) * 25}% к заработку`;
-            } else {
-                userBonus.textContent = 'Без бонуса';
-            }
-            
-            userInfo.appendChild(userName);
-            userInfo.appendChild(userValue);
-            userInfo.appendChild(userBonus);
-            
-            userItem.appendChild(userRank);
-            userItem.appendChild(userInfo);
-            
-            leaderboardList.appendChild(userItem);
         }
         
         // Подключение кошелька (симуляция)
@@ -3149,8 +3225,8 @@
         // Изменение курса обмена
         function startExchangeRateChange() {
             setInterval(() => {
-                // Генерируем случайное изменение курса (-10% до +10%)
-                const change = (Math.random() * 0.2 - 0.1);
+                // Генерируем случайное изменение курса с увеличенной волатильностью
+                const change = (Math.random() * config.exchangeVolatility * 2 - config.exchangeVolatility);
                 state.exchangeRate = Math.max(
                     config.minExchangeRate, 
                     Math.min(
@@ -3222,10 +3298,10 @@
         
         // Обновление страницы "О проекте"
         function updateAboutPage() {
-            document.getElementById('totalUsers').textContent = '25K+';
-            document.getElementById('totalCoinsMined').textContent = '1.2M';
-            document.getElementById('totalTransactions').textContent = '45K';
-            document.getElementById('maxReward').textContent = '2250';
+            document.getElementById('totalUsers').textContent = '35K+';
+            document.getElementById('totalCoinsMined').textContent = '2.1M';
+            document.getElementById('totalTransactions').textContent = '68K';
+            document.getElementById('maxReward').textContent = '1800';
         }
         
         // Управление туториалом
@@ -3257,6 +3333,14 @@
             });
         }
         
+        // Сброс статистики
+        function resetStats() {
+            if (confirm("Вы уверены, что хотите сбросить всю статистику? Это действие нельзя отменить!")) {
+                localStorage.removeItem(`ruthash_user_${config.userId}`);
+                location.reload();
+            }
+        }
+        
         // Инициализация приложения
         function init() {
             initTelegram();
@@ -3276,6 +3360,7 @@
             document.getElementById('quest4Btn').addEventListener('click', () => claimQuest(4));
             document.getElementById('quest5Btn').addEventListener('click', () => claimQuest(5));
             document.getElementById('quest6Btn').addEventListener('click', () => claimQuest(6));
+            document.getElementById('quest7Btn').addEventListener('click', () => claimQuest(7));
             document.getElementById('quest8Btn').addEventListener('click', () => claimQuest(8));
             
             setupTabNavigation();
@@ -3289,6 +3374,8 @@
             document.getElementById('connectTrustBtn').addEventListener('click', () => connectWallet('Trust Wallet'));
             document.getElementById('connectMetaMaskBtn').addEventListener('click', () => connectWallet('MetaMask'));
             document.getElementById('withdrawBtn').addEventListener('click', withdrawFunds);
+            
+            document.getElementById('resetStatsBtn').addEventListener('click', resetStats);
             
             setInterval(() => {
                 saveUserData();
